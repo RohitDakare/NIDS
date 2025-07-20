@@ -1,0 +1,229 @@
+# 🛡️ AI-Based Network Intrusion Detection System (NIDS)
+
+A comprehensive Python-based backend for a hybrid Network Intrusion Detection System that combines signature-based detection and machine learning-based anomaly detection.
+
+## 🎯 Features
+
+- **Real-time Packet Sniffing**: Capture and analyze live network traffic
+- **ML-Based Anomaly Detection**: Pre-trained machine learning models for threat detection
+- **Signature-Based Detection**: Rule-based pattern matching for known attacks
+- **RESTful API**: FastAPI-based interface for system control and monitoring
+- **Alerting & Logging**: Comprehensive logging and alert generation
+- **Database Storage**: SQLite-based storage for alerts and packet data
+
+## 🏗️ Architecture
+
+```
+NIDS/
+├── app/
+│   ├── __init__.py
+│   ├── main.py                 # FastAPI application entry point
+│   ├── models/                 # Pydantic models for API
+│   ├── core/                   # Core NIDS functionality
+│   │   ├── packet_sniffer.py   # Network packet capture
+│   │   ├── ml_detector.py      # ML-based anomaly detection
+│   │   ├── signature_detector.py # Signature-based detection
+│   │   └── alert_manager.py    # Alert generation and management
+│   ├── api/                    # API routes
+│   ├── database/               # Database models and operations
+│   └── utils/                  # Utility functions
+├── models/                     # Pre-trained ML models
+├── data/                       # Training data and logs
+├── tests/                      # Unit tests
+├── requirements.txt
+└── README.md
+```
+
+## 🚀 Quick Start
+
+### 1. Automated Setup (Recommended)
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd NIDS
+
+# Run the automated setup script
+python setup.py
+```
+
+The setup script will:
+- Check Python version compatibility
+- Create a virtual environment
+- Install all dependencies
+- Create necessary directories
+- Generate configuration files
+- Check network interfaces
+- Run basic tests
+- Create startup scripts
+
+### 2. Manual Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd NIDS
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create necessary directories
+mkdir -p models data logs
+
+# Copy configuration template
+cp env.example .env
+```
+
+### 3. Configuration
+
+Edit the `.env` file to configure the system:
+
+```env
+# Network Interface (use 'lo' for loopback testing)
+INTERFACE=eth0
+
+# ML Model Settings
+MODEL_PATH=models/nids_model.joblib
+CONFIDENCE_THRESHOLD=0.8
+
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+```
+
+### 4. Start the Application
+
+```bash
+# Activate virtual environment
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Start the application
+python run.py
+
+# Or use the startup scripts
+./start_nids.sh  # Unix/Linux/Mac
+start_nids.bat   # Windows
+```
+
+### 5. Access the System
+
+- **API Documentation**: http://localhost:8000/docs
+- **System Info**: http://localhost:8000/info
+- **Health Check**: http://localhost:8000/api/v1/health
+
+### 6. Run the Demo
+
+```bash
+# In a new terminal (with virtual environment activated)
+python demo.py
+```
+
+## 📡 API Endpoints
+
+The system provides the following REST API endpoints:
+
+### Core Operations
+- `POST /api/v1/start-sniffer` - Begin packet monitoring
+- `POST /api/v1/stop-sniffer` - Stop monitoring
+- `GET /api/v1/status` - System health and status
+
+### Data Retrieval
+- `GET /api/v1/alerts` - Retrieve recent alerts
+- `GET /api/v1/packets` - Show recent captured traffic
+- `GET /api/v1/stats` - Detailed detection statistics
+- `GET /api/v1/correlation` - Alert correlation analysis
+
+### Configuration
+- `POST /api/v1/config/sniffer` - Update sniffer configuration
+- `POST /api/v1/config/ml` - Update ML model configuration
+- `GET /api/v1/signature-rules` - Get signature rule statistics
+
+### Management
+- `POST /api/v1/alerts/{id}/resolve` - Resolve an alert
+- `DELETE /api/v1/alerts/{id}` - Delete an alert
+- `POST /api/v1/alerts/clear` - Clear alerts
+- `GET /api/v1/export/alerts` - Export alerts (JSON/CSV)
+
+## 🔧 Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+# Network Interface
+INTERFACE=eth0
+PACKET_COUNT=1000
+
+# ML Model Settings
+MODEL_PATH=models/nids_model.joblib
+CONFIDENCE_THRESHOLD=0.8
+
+# Database
+DATABASE_URL=sqlite:///./data/nids.db
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=logs/nids.log
+```
+
+## 🪟 Windows Installation
+
+If you're installing on Windows and encounter scikit-learn compilation issues, see the [Windows Installation Guide](WINDOWS_INSTALL.md) for detailed troubleshooting steps.
+
+## 🧠 Machine Learning Models
+
+The system supports various ML models for anomaly detection:
+
+- Random Forest
+- Support Vector Machine (SVM)
+- Neural Networks
+- Isolation Forest
+
+Pre-trained models should be placed in the `models/` directory.
+
+## 📊 Monitoring and Alerts
+
+The system generates alerts for:
+- ML-based anomaly detection
+- Signature-based pattern matching
+- System health issues
+- Performance metrics
+
+Alerts are stored in the database and can be retrieved via API.
+
+## 🔒 Security Considerations
+
+- Run with appropriate permissions for packet capture
+- Secure API endpoints in production
+- Implement rate limiting
+- Use HTTPS in production environments
+- Regular model updates and retraining
+
+## 🧪 Testing
+
+```bash
+# Run tests
+python -m pytest tests/
+
+# Run with coverage
+python -m pytest tests/ --cov=app
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📞 Support
+
+For issues and questions, please open an issue on the repository. 

@@ -1,0 +1,276 @@
+2025-07-20 11:35:15,187 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 11:35:15,192 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 11:35:15,198 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 11:35:15,198 - __main__ - INFO - Environment validation completed
+2025-07-20 11:35:15,198 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 11:35:15,198 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 11:35:15,198 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 11:35:15,198 - __main__ - INFO -   API Port: 8000
+2025-07-20 11:35:15,199 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 11:35:15,199 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 11:35:15,199 - __main__ - INFO - Starting NIDS application...
+2025-07-20 11:37:57,654 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 11:37:57,659 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 11:37:57,664 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 11:37:57,664 - __main__ - INFO - Environment validation completed
+2025-07-20 11:37:57,665 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 11:37:57,665 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 11:37:57,665 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 11:37:57,665 - __main__ - INFO -   API Port: 8000
+2025-07-20 11:37:57,665 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 11:37:57,665 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 11:37:57,665 - __main__ - INFO - Starting NIDS application...
+2025-07-20 11:37:59,589 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:37:59,589 - app.core.ml_detector - WARNING - Model file not found at models/nids_model.joblib, creating default model
+2025-07-20 11:37:59,769 - app.core.ml_detector - INFO - Created and saved default ML model to models/nids_model.joblib
+2025-07-20 11:37:59,770 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:37:59,770 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:37:59,781 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 11:39:00,132 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 11:39:00,139 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 11:39:00,145 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 11:39:00,145 - __main__ - INFO - Environment validation completed
+2025-07-20 11:39:00,146 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 11:39:00,146 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 11:39:00,146 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 11:39:00,146 - __main__ - INFO -   API Port: 8000
+2025-07-20 11:39:00,146 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 11:39:00,146 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 11:39:00,146 - __main__ - INFO - Starting NIDS application...
+2025-07-20 11:39:02,275 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:39:02,296 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 11:39:02,297 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:39:02,297 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:39:02,309 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 11:41:42,006 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 11:41:42,006 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 11:41:42,006 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 11:41:42,037 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 11:41:42,038 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 11:41:42,038 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 11:41:45,371 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:41:45,388 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 11:41:45,389 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:41:45,389 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:41:45,405 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 11:41:45,412 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:41:45,423 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 11:41:45,424 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:41:45,425 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:41:45,441 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 11:44:32,295 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 11:44:32,302 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 11:44:32,307 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 11:44:32,307 - __main__ - INFO - Environment validation completed
+2025-07-20 11:44:32,308 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 11:44:32,308 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 11:44:32,308 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 11:44:32,308 - __main__ - INFO -   API Port: 8000
+2025-07-20 11:44:32,308 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 11:44:32,308 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 11:44:32,309 - __main__ - INFO - Starting NIDS application...
+2025-07-20 11:44:34,719 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:44:34,729 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 11:44:34,730 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:44:34,730 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:44:34,743 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 11:46:16,930 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 11:46:16,936 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 11:46:16,941 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 11:46:16,942 - __main__ - INFO - Environment validation completed
+2025-07-20 11:46:16,942 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 11:46:16,942 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 11:46:16,942 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 11:46:16,943 - __main__ - INFO -   API Port: 8000
+2025-07-20 11:46:16,943 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 11:46:16,943 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 11:46:16,943 - __main__ - INFO - Starting NIDS application...
+2025-07-20 11:46:19,252 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:46:19,262 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 11:46:19,264 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:46:19,264 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:46:19,276 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 11:51:52,891 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 11:51:52,891 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 11:51:52,891 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 11:51:55,636 - app.main - INFO - Starting NIDS application...
+2025-07-20 11:51:55,647 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 11:51:55,648 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 11:51:55,648 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 11:51:55,660 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 13:30:28,793 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 13:30:28,806 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 13:30:28,819 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 13:30:28,819 - __main__ - INFO - Environment validation completed
+2025-07-20 13:30:28,820 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 13:30:28,820 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 13:30:28,820 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 13:30:28,821 - __main__ - INFO -   API Port: 8000
+2025-07-20 13:30:28,821 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 13:30:28,821 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 13:30:28,822 - __main__ - INFO - Starting NIDS application...
+2025-07-20 13:30:31,507 - app.main - INFO - Starting NIDS application...
+2025-07-20 13:30:31,530 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 13:30:31,531 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 13:30:31,531 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 13:30:31,541 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 14:24:50,644 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 14:24:50,661 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 14:24:50,674 - __main__ - INFO - Available interfaces: ['Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Ethernet', 'Loopback Pseudo-Interface 1']
+2025-07-20 14:24:50,675 - __main__ - INFO - Environment validation completed
+2025-07-20 14:24:50,675 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 14:24:50,676 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 14:24:50,676 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 14:24:50,677 - __main__ - INFO -   API Port: 8000
+2025-07-20 14:24:50,677 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 14:24:50,678 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 14:24:50,679 - __main__ - INFO - Starting NIDS application...
+2025-07-20 14:24:52,825 - app.main - INFO - Starting NIDS application...
+2025-07-20 14:24:52,836 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 14:24:52,838 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 14:24:52,838 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 14:24:52,848 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 14:25:03,321 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 14:25:03,321 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 14:25:03,321 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 14:27:06,069 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 14:27:06,075 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 14:27:06,119 - __main__ - INFO - Available interfaces: ['Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Ethernet', 'Loopback Pseudo-Interface 1']
+2025-07-20 14:27:06,119 - __main__ - INFO - Environment validation completed
+2025-07-20 14:27:06,120 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 14:27:06,120 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 14:27:06,120 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 14:27:06,120 - __main__ - INFO -   API Port: 8000
+2025-07-20 14:27:06,120 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 14:27:06,120 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 14:27:06,121 - __main__ - INFO - Starting NIDS application...
+2025-07-20 14:27:08,244 - app.main - INFO - Starting NIDS application...
+2025-07-20 14:27:08,253 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 14:27:08,254 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 14:27:08,256 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 14:27:08,270 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 14:48:35,570 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 14:48:35,575 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 14:48:35,575 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 17:09:16,323 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 17:09:16,345 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 17:09:16,356 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 17:09:16,357 - __main__ - INFO - Environment validation completed
+2025-07-20 17:09:16,357 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 17:09:16,357 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 17:09:16,358 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 17:09:16,358 - __main__ - INFO -   API Port: 8000
+2025-07-20 17:09:16,358 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 17:09:16,358 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 17:09:16,359 - __main__ - INFO - Starting NIDS application...
+2025-07-20 17:09:18,440 - app.main - INFO - Starting NIDS application...
+2025-07-20 17:09:18,458 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 17:09:18,460 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 17:09:18,460 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 17:09:18,470 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 17:28:56,421 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 17:28:56,430 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 17:28:56,442 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 17:28:56,443 - __main__ - INFO - Environment validation completed
+2025-07-20 17:28:56,444 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 17:28:56,454 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 17:28:56,455 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 17:28:56,455 - __main__ - INFO -   API Port: 8000
+2025-07-20 17:28:56,455 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 17:28:56,456 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 17:28:56,456 - __main__ - INFO - Starting NIDS application...
+2025-07-20 17:28:58,691 - app.main - INFO - Starting NIDS application...
+2025-07-20 17:28:58,705 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 17:28:58,706 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 17:28:58,707 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 17:28:58,720 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 17:34:17,729 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 17:34:17,736 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 17:34:17,742 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 17:34:17,743 - __main__ - INFO - Environment validation completed
+2025-07-20 17:34:17,743 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 17:34:17,743 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 17:34:17,744 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 17:34:17,744 - __main__ - INFO -   API Port: 8000
+2025-07-20 17:34:17,744 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 17:34:17,745 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 17:34:17,745 - __main__ - INFO - Starting NIDS application...
+2025-07-20 17:34:20,342 - app.main - INFO - Starting NIDS application...
+2025-07-20 17:34:20,353 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 17:34:20,354 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 17:34:20,355 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 17:34:20,367 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 17:37:04,376 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 17:37:04,376 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 17:37:04,376 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 17:37:07,483 - app.main - INFO - Starting NIDS application...
+2025-07-20 17:37:07,504 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 17:37:07,529 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 17:37:07,530 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 17:37:07,553 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 17:37:40,307 - app.core.nids_orchestrator - INFO - NIDS system started successfully
+2025-07-20 17:38:58,178 - app.core.nids_orchestrator - ERROR - Error getting detailed stats: object of type 'int' has no len()
+2025-07-20 17:43:14,760 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 17:43:14,768 - __main__ - WARNING - Network interface 'eth0' may not be available
+2025-07-20 17:43:14,776 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 17:43:14,776 - __main__ - INFO - Environment validation completed
+2025-07-20 17:43:14,776 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 17:43:14,777 - __main__ - INFO -   Network Interface: eth0
+2025-07-20 17:43:14,777 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 17:43:14,777 - __main__ - INFO -   API Port: 8000
+2025-07-20 17:43:14,778 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 17:43:14,778 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 17:43:14,778 - __main__ - INFO - Starting NIDS application...
+2025-07-20 17:43:17,261 - app.main - INFO - Starting NIDS application...
+2025-07-20 17:43:17,279 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 17:43:17,307 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 17:43:17,307 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 17:43:17,326 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 17:43:44,325 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 17:43:44,326 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 17:43:44,326 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 17:43:47,155 - app.main - INFO - Starting NIDS application...
+2025-07-20 17:43:47,166 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 17:43:47,169 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-07-20 17:43:47,169 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 17:43:47,179 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Interface 'eth0' not found !
+2025-07-20 17:44:15,640 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-07-20 17:44:15,640 - app.api.routes - ERROR - Error stopping sniffer: 500: Failed to stop NIDS system
+2025-07-20 17:44:24,342 - app.core.nids_orchestrator - INFO - NIDS system started successfully
+2025-07-20 17:44:36,923 - app.core.nids_orchestrator - ERROR - Error getting detailed stats: object of type 'int' has no len()
+2025-07-20 17:45:04,636 - app.main - INFO - Shutting down NIDS application...
+2025-07-20 17:45:04,636 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-07-20 17:45:04,637 - app.core.nids_orchestrator - INFO - NIDS system stopped successfully
+2025-07-20 17:45:04,637 - app.main - INFO - NIDS system stopped successfully
+2025-07-20 18:10:39,861 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 18:10:39,871 - __main__ - WARNING - Network interface 'Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1' may not be available
+2025-07-20 18:10:39,878 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 18:10:39,880 - __main__ - INFO - Environment validation completed
+2025-07-20 18:10:39,880 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 18:10:39,880 - __main__ - INFO -   Network Interface: Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1
+2025-07-20 18:10:39,881 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 18:10:39,881 - __main__ - INFO -   API Port: 8000
+2025-07-20 18:10:39,881 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 18:10:39,881 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 18:10:39,881 - __main__ - INFO - Starting NIDS application...
+2025-07-20 18:10:42,878 - app.main - INFO - Starting NIDS application...
+2025-07-20 18:10:42,904 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 18:10:42,912 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket orconf.L3socket6 to access layer 3
+2025-07-20 18:10:42,913 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1
+2025-07-20 18:10:42,914 - app.main - INFO - NIDS system initialized successfully
+2025-07-20 19:45:06,061 - app.utils.config - INFO - Configuration validation passed
+2025-07-20 19:45:06,071 - __main__ - WARNING - Network interface 'Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1' may not be available
+2025-07-20 19:45:06,082 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-20 19:45:06,082 - __main__ - INFO - Environment validation completed
+2025-07-20 19:45:06,083 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-20 19:45:06,083 - __main__ - INFO -   Network Interface: Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1
+2025-07-20 19:45:06,083 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-20 19:45:06,083 - __main__ - INFO -   API Port: 8000
+2025-07-20 19:45:06,083 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-20 19:45:06,084 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-20 19:45:06,084 - __main__ - INFO - Starting NIDS application...
+2025-07-20 19:45:07,984 - app.main - INFO - Starting NIDS application...
+2025-07-20 19:45:08,006 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-20 19:45:08,006 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket orconf.L3socket6 to access layer 3
+2025-07-20 19:45:08,007 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1
+2025-07-20 19:45:08,007 - app.main - INFO - NIDS system initialized successfully
