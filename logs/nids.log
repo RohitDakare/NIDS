@@ -381,3 +381,33 @@
 2025-07-24 21:54:51,073 - app.main - INFO - Shutting down NIDS application...
 2025-07-24 21:54:51,074 - app.core.nids_orchestrator - WARNING - NIDS system is not running
 2025-07-24 21:54:51,075 - app.main - INFO - NIDS system stopped successfully
+2025-07-25 21:36:21,344 - app.utils.config - INFO - Configuration validation passed
+2025-07-25 21:36:21,350 - __main__ - WARNING - Network interface 'Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1' may not be available
+2025-07-25 21:36:21,356 - __main__ - INFO - Available interfaces: ['Ethernet', 'Local Area Connection* 1', 'Local Area Connection* 2', 'VMware Network Adapter VMnet1', 'VMware Network Adapter VMnet8', 'Wi-Fi', 'Loopback Pseudo-Interface 1']
+2025-07-25 21:36:21,356 - __main__ - INFO - Environment validation completed
+2025-07-25 21:36:21,356 - __main__ - INFO - Starting NIDS with configuration:
+2025-07-25 21:36:21,357 - __main__ - INFO -   Network Interface: Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1
+2025-07-25 21:36:21,357 - __main__ - INFO -   API Host: 0.0.0.0
+2025-07-25 21:36:21,357 - __main__ - INFO -   API Port: 8000
+2025-07-25 21:36:21,357 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-07-25 21:36:21,358 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-07-25 21:36:21,358 - __main__ - INFO - Starting NIDS application...
+2025-07-25 21:36:23,144 - app.main - INFO - Starting NIDS application...
+2025-07-25 21:36:23,162 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-07-25 21:36:23,163 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket orconf.L3socket6 to access layer 3
+2025-07-25 21:36:23,163 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Ethernet,Local Area Connection* 1,Local Area Connection* 2,VMware Network Adapter VMnet1,VMware Network Adapter VMnet8,Wi-Fi,Loopback Pseudo-Interface 1
+2025-07-25 21:36:23,163 - app.main - INFO - NIDS system initialized successfully
+2025-08-06 20:04:44,266 - app.utils.config - INFO - Configuration validation passed
+2025-08-06 20:04:44,279 - __main__ - INFO - Environment validation completed
+2025-08-06 20:04:44,280 - __main__ - INFO - Starting NIDS with configuration:
+2025-08-06 20:04:44,280 - __main__ - INFO -   Network Interface: Wi-Fi
+2025-08-06 20:04:44,281 - __main__ - INFO -   API Host: 0.0.0.0
+2025-08-06 20:04:44,283 - __main__ - INFO -   API Port: 8000
+2025-08-06 20:04:44,283 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-08-06 20:04:44,284 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-08-06 20:04:44,285 - __main__ - INFO - Starting NIDS application...
+2025-08-06 20:04:49,918 - app.main - INFO - Starting NIDS application...
+2025-08-06 20:04:49,954 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-08-06 20:04:49,958 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket orconf.L3socket6 to access layer 3
+2025-08-06 20:04:49,958 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-08-06 20:04:49,961 - app.main - INFO - NIDS system initialized successfully

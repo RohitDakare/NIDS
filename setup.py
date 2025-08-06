@@ -75,7 +75,12 @@ def install_dependencies():
         requirements_file = "requirements.txt"
     
     # Upgrade pip first
-    if not run_command(f"{pip_cmd} install --upgrade pip", "Upgrading pip"):
+    if os.name == 'nt':  # Windows
+        python_cmd = "venv\\Scripts\\python"
+    else:  # Unix/Linux/Mac
+        python_cmd = "venv/bin/python"
+    
+    if not run_command(f"{python_cmd} -m pip install --upgrade pip", "Upgrading pip"):
         return False
     
     # Install numpy and scipy first (required for scikit-learn)

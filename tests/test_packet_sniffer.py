@@ -73,8 +73,8 @@ class TestPacketSniffer:
         mock_tcp.payload = b"test payload"
         
         # Set up packet structure
-        mock_packet.__contains__ = lambda layer: layer.__name__ == "IP"
-        mock_packet.__getitem__ = lambda layer: mock_ip if layer.__name__ == "IP" else mock_tcp
+        mock_packet.__contains__ = lambda self, layer: layer.__name__ in ["IP", "TCP"]
+        mock_packet.__getitem__ = lambda self, layer: mock_ip if layer.__name__ == "IP" else mock_tcp
         
         # Test extraction
         packet_info = packet_sniffer._extract_packet_info(mock_packet)
@@ -107,8 +107,8 @@ class TestPacketSniffer:
         mock_udp.payload = b"dns query"
         
         # Set up packet structure
-        mock_packet.__contains__ = lambda layer: layer.__name__ == "IP"
-        mock_packet.__getitem__ = lambda layer: mock_ip if layer.__name__ == "IP" else mock_udp
+        mock_packet.__contains__ = lambda self, layer: layer.__name__ in ["IP", "UDP"]
+        mock_packet.__getitem__ = lambda self, layer: mock_ip if layer.__name__ == "IP" else mock_udp
         
         # Test extraction
         packet_info = packet_sniffer._extract_packet_info(mock_packet)
