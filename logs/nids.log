@@ -411,3 +411,9 @@
 2025-08-06 20:04:49,958 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Sniffing and sending packets is not available at layer 2: winpcap is not installed. You may use conf.L3socket orconf.L3socket6 to access layer 3
 2025-08-06 20:04:49,958 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
 2025-08-06 20:04:49,961 - app.main - INFO - NIDS system initialized successfully
+2025-08-06 20:07:06,248 - app.core.nids_orchestrator - INFO - NIDS system started successfully
+2025-08-06 20:07:27,757 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-08-06 20:07:27,761 - app.core.nids_orchestrator - INFO - NIDS system stopped successfully
+2025-08-06 20:08:32,605 - app.main - INFO - Shutting down NIDS application...
+2025-08-06 20:08:32,608 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-08-06 20:08:32,608 - app.main - INFO - NIDS system stopped successfully
