@@ -167,12 +167,12 @@ export default function EnhancedNIDSDashboard() {
     return alerts.filter((alert) => {
       const matchesSearch =
         searchQuery === "" ||
-        alert.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        alert.sourceIP.includes(searchQuery) ||
-        alert.destIP.includes(searchQuery)
+        alert.detection_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        alert.source_ip.includes(searchQuery) ||
+        alert.dest_ip.includes(searchQuery)
 
       const matchesSeverity = selectedFilters.severity === "all" || alert.severity === selectedFilters.severity
-      const matchesStatus = selectedFilters.status === "all" || alert.status === selectedFilters.status
+      const matchesStatus = selectedFilters.status === "all" || alert.is_resolved === (selectedFilters.status === "resolved")
 
       return matchesSearch && matchesSeverity && matchesStatus
     })
@@ -210,9 +210,10 @@ export default function EnhancedNIDSDashboard() {
     }
   }
 
-  const formatTimeAgo = (timestamp: Date) => {
+  const formatTimeAgo = (timestamp: Date | string) => {
+    const timestampDate = timestamp instanceof Date ? timestamp : new Date(timestamp)
     const now = new Date()
-    const diffMs = now.getTime() - timestamp.getTime()
+    const diffMs = now.getTime() - timestampDate.getTime()
     const diffMins = Math.floor(diffMs / 60000)
 
     if (diffMins < 1) return "Just now"
@@ -226,7 +227,7 @@ export default function EnhancedNIDSDashboard() {
   const handleAlertAction = (alertId: number, action: string) => {
     setAlerts((prev) =>
       prev.map((alert) =>
-        alert.id === alertId ? { ...alert, status: action === "acknowledge" ? "acknowledged" : action } : alert,
+        alert.id === alertId ? { ...alert, is_resolved: action === "acknowledge" || action === "resolved" } : alert,
       ),
     )
   }
@@ -310,7 +311,7 @@ export default function EnhancedNIDSDashboard() {
                       <Bell className="mr-2 h-4 w-4" />
                       Alerts
                       <Badge variant="destructive" className="ml-auto text-xs">
-                        {alerts.filter((a) => a.status === "new").length}
+                        {alerts.filter((a) => !a.is_resolved).length}
                       </Badge>
                       <kbd className="ml-2 text-xs bg-muted px-1 rounded">⌘2</kbd>
                     </Button>
@@ -387,7 +388,7 @@ export default function EnhancedNIDSDashboard() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Active Threats</span>
                   <span className="font-medium text-destructive">
-                    {alerts.filter((a) => a.status === "new").length}
+                    {alerts.filter((a) => !a.is_resolved).length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -484,7 +485,7 @@ export default function EnhancedNIDSDashboard() {
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl font-bold text-destructive">
-                          {alerts.filter((a) => a.status === "new").length}
+                          {alerts.filter((a) => !a.is_resolved).length}
                         </div>
                         <p className="text-xs text-muted-foreground">
                           {alerts.filter((a) => a.severity === "critical").length} critical
@@ -719,17 +720,17 @@ export default function EnhancedNIDSDashboard() {
                                   <Badge variant={getSeverityColor(alert.severity)} className="text-xs">
                                     {alert.severity.toUpperCase()}
                                   </Badge>
-                                  <div className="text-xs text-muted-foreground">{alert.confidence}%</div>
+                                  <div className="text-xs text-muted-foreground">{alert.confidence_score || 0}%</div>
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-medium">{alert.type}</p>
+                                    <p className="font-medium">{alert.detection_type}</p>
                                     <Badge variant="outline" className="text-xs">
                                       {alert.protocol}
                                     </Badge>
                                   </div>
                                   <p className="text-sm text-muted-foreground mb-1">
-                                    {alert.sourceIP} → {alert.destIP}:{alert.port}
+                                    {alert.source_ip} → {alert.dest_ip}:{alert.packet_data?.dest_port || 'N/A'}
                                   </p>
                                   <p className="text-xs text-muted-foreground">{alert.description}</p>
                                 </div>
@@ -737,7 +738,7 @@ export default function EnhancedNIDSDashboard() {
                               <div className="flex items-center gap-3">
                                 <div className="text-right">
                                   <div className="text-sm font-medium">{formatTimeAgo(alert.timestamp)}</div>
-                                  <div className="text-xs text-muted-foreground">{alert.relatedAlerts} related</div>
+                                  <div className="text-xs text-muted-foreground">{alert.packet_data ? '1' : '0'} related</div>
                                 </div>
                                 <div className="flex gap-1">
                                   <Tooltip>
@@ -892,29 +893,30 @@ export default function EnhancedNIDSDashboard() {
                                 <TableCell>
                                   <div className="flex items-center gap-3">
                                     <Badge variant={getSeverityColor(alert.severity)} className="text-xs">
-                                      {alert.severity.charAt(0).toUpperCase()}
+                                      {alert.severity.toUpperCase()}
                                     </Badge>
                                     <div>
-                                      <div className="font-medium">{alert.type}</div>
+                                      <div className="font-medium">{alert.detection_type}</div>
                                       <div className="text-sm text-muted-foreground flex items-center gap-2">
                                         <Badge variant="outline" className="text-xs">
                                           {alert.protocol}
                                         </Badge>
-                                        <span>Rule: {alert.ruleId}</span>
+                                        <span>Rule: {alert.id}</span>
                                       </div>
+                                      <div className="text-xs text-muted-foreground mt-1">{alert.packet_data?.geo_location || 'Unknown location'}</div>
                                     </div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="font-mono text-sm">
                                     <div className="flex items-center gap-2">
-                                      <span>{alert.sourceIP}</span>
+                                      <span>{alert.source_ip}</span>
                                       <span className="text-muted-foreground">→</span>
                                       <span>
-                                        {alert.destIP}:{alert.port}
+                                        {alert.dest_ip}:{alert.packet_data?.dest_port || 'N/A'}
                                       </span>
                                     </div>
-                                    <div className="text-xs text-muted-foreground mt-1">{alert.geoLocation}</div>
+                                    <div className="text-xs text-muted-foreground mt-1">{alert.packet_data?.geo_location || 'Unknown location'}</div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
@@ -922,26 +924,26 @@ export default function EnhancedNIDSDashboard() {
                                     <div className="w-16 bg-muted rounded-full h-2">
                                       <div
                                         className={`h-2 rounded-full ${
-                                          alert.confidence >= 90
-                                            ? "bg-green-500"
-                                            : alert.confidence >= 70
+                                          (alert.confidence_score || 0) >= 90
+                                            ? "bg-red-500"
+                                            : (alert.confidence_score || 0) >= 70
                                               ? "bg-yellow-500"
-                                              : "bg-red-500"
+                                              : "bg-green-500"
                                         }`}
-                                        style={{ width: `${alert.confidence}%` }}
+                                        style={{ width: `${alert.confidence_score || 0}%` }}
                                       />
                                     </div>
-                                    <span className="text-sm font-medium">{alert.confidence}%</span>
+                                    <span className="text-sm font-medium">{alert.confidence_score || 0}%</span>
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="text-sm">
                                     <div>{formatTimeAgo(alert.timestamp)}</div>
-                                    <div className="text-xs text-muted-foreground">{alert.relatedAlerts} related</div>
+                                    <div className="text-xs text-muted-foreground">{alert.packet_data ? '1' : '0'} related</div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <Badge variant={getStatusColor(alert.status)}>{alert.status}</Badge>
+                                  <Badge variant={getStatusColor(alert.is_resolved ? 'resolved' : 'new')}>{alert.is_resolved ? 'resolved' : 'new'}</Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex justify-end gap-1">
@@ -977,7 +979,7 @@ export default function EnhancedNIDSDashboard() {
                                                 <CardContent className="space-y-2">
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Type:</span>
-                                                    <span className="text-sm font-medium">{alert.type}</span>
+                                                    <span className="text-sm font-medium">{alert.detection_type}</span>
                                                   </div>
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Severity:</span>
@@ -987,11 +989,19 @@ export default function EnhancedNIDSDashboard() {
                                                   </div>
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Confidence:</span>
-                                                    <span className="text-sm font-medium">{alert.confidence}%</span>
+                                                    <span className="text-sm font-medium">{alert.confidence_score || 0}%</span>
                                                   </div>
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Rule ID:</span>
-                                                    <code className="text-sm">{alert.ruleId}</code>
+                                                    <code className="text-sm">{alert.id}</code>
+                                                  </div>
+                                                  <div className="flex justify-between">
+                                                    <span className="text-sm text-muted-foreground">Location:</span>
+                                                    <span className="text-sm">{alert.packet_data?.geo_location || 'Unknown'}</span>
+                                                  </div>
+                                                  <div className="flex justify-between">
+                                                    <span className="text-sm text-muted-foreground">Payload:</span>
+                                                    <code className="text-sm">{alert.packet_data?.payload || 'N/A'}</code>
                                                   </div>
                                                 </CardContent>
                                               </Card>
@@ -1002,12 +1012,12 @@ export default function EnhancedNIDSDashboard() {
                                                 <CardContent className="space-y-2">
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Source IP:</span>
-                                                    <code className="text-sm">{alert.sourceIP}</code>
+                                                    <code className="text-sm">{alert.source_ip}</code>
                                                   </div>
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Destination:</span>
                                                     <code className="text-sm">
-                                                      {alert.destIP}:{alert.port}
+                                                      {alert.dest_ip}:{alert.packet_data?.dest_port || 'N/A'}
                                                     </code>
                                                   </div>
                                                   <div className="flex justify-between">
@@ -1016,7 +1026,7 @@ export default function EnhancedNIDSDashboard() {
                                                   </div>
                                                   <div className="flex justify-between">
                                                     <span className="text-sm text-muted-foreground">Location:</span>
-                                                    <span className="text-sm">{alert.geoLocation}</span>
+                                                    <span className="text-sm">{alert.packet_data?.geo_location || 'Unknown'}</span>
                                                   </div>
                                                 </CardContent>
                                               </Card>
@@ -1037,7 +1047,7 @@ export default function EnhancedNIDSDashboard() {
                                               </CardHeader>
                                               <CardContent>
                                                 <div className="bg-muted p-4 rounded-lg">
-                                                  <code className="text-sm">{alert.payload}</code>
+                                                  <code className="text-sm">{alert.packet_data?.payload || 'N/A'}</code>
                                                 </div>
                                               </CardContent>
                                             </Card>
@@ -1047,8 +1057,8 @@ export default function EnhancedNIDSDashboard() {
                                               </CardHeader>
                                               <CardContent>
                                                 <p className="text-sm text-muted-foreground">
-                                                  This alert was triggered by rule {alert.ruleId} which monitors for{" "}
-                                                  {alert.type.toLowerCase()} patterns.
+                                                  This alert was triggered by rule {alert.id} which monitors for{" "}
+                                                  {alert.detection_type.toLowerCase()} patterns.
                                                 </p>
                                               </CardContent>
                                             </Card>
@@ -1056,13 +1066,17 @@ export default function EnhancedNIDSDashboard() {
                                           <TabsContent value="context" className="space-y-4">
                                             <Card>
                                               <CardHeader>
-                                                <CardTitle className="text-sm">
-                                                  Related Alerts ({alert.relatedAlerts})
+                                                <CardTitle className="text-lg">
+                                                  Related Alerts ({alert.packet_data ? '1' : '0'})
                                                 </CardTitle>
+                                                <CardDescription>
+                                                  {alert.packet_data ? '1' : '0'} related alerts found in the last 24 hours from
+                                                  the same source IP.
+                                                </CardDescription>
                                               </CardHeader>
                                               <CardContent>
                                                 <p className="text-sm text-muted-foreground">
-                                                  {alert.relatedAlerts} related alerts found in the last 24 hours from
+                                                  {alert.packet_data ? '1' : '0'} related alerts found in the last 24 hours from
                                                   the same source.
                                                 </p>
                                               </CardContent>
@@ -1073,7 +1087,7 @@ export default function EnhancedNIDSDashboard() {
                                               </CardHeader>
                                               <CardContent>
                                                 <p className="text-sm text-muted-foreground">
-                                                  Source IP {alert.sourceIP} has been flagged in threat intelligence
+                                                  Source IP {alert.source_ip} has been flagged in threat intelligence
                                                   feeds.
                                                 </p>
                                               </CardContent>
@@ -1203,32 +1217,32 @@ export default function EnhancedNIDSDashboard() {
                               </TableHeader>
                               <TableBody>
                                 {packets.map((packet) => (
-                                  <TableRow key={packet.id} className="hover:bg-muted/50">
+                                  <TableRow key={packet.id || Math.random()} className="hover:bg-muted/50">
                                     <TableCell className="font-mono text-sm">
-                                      {packet.timestamp.toLocaleTimeString()}
+                                      {new Date(packet.timestamp).toLocaleTimeString()}
                                     </TableCell>
-                                    <TableCell className="font-mono text-sm">{packet.sourceIP}</TableCell>
-                                    <TableCell className="font-mono text-sm">{packet.destIP}</TableCell>
+                                    <TableCell className="font-mono text-sm">{packet.source_ip}</TableCell>
+                                    <TableCell className="font-mono text-sm">{packet.dest_ip}</TableCell>
                                     <TableCell>
                                       <Badge variant="outline">{packet.protocol}</Badge>
                                     </TableCell>
-                                    <TableCell>{packet.size} bytes</TableCell>
+                                    <TableCell>{packet.packet_length} bytes</TableCell>
                                     <TableCell>
                                       <div className="flex items-center gap-2">
                                         <div className="w-16 bg-muted rounded-full h-2">
                                           <div
                                             className={`h-2 rounded-full ${
-                                              packet.anomalyScore >= 0.8
+                                              (packet.anomaly_score || 0) >= 0.8
                                                 ? "bg-red-500"
-                                                : packet.anomalyScore >= 0.6
+                                                : (packet.anomaly_score || 0) >= 0.6
                                                   ? "bg-yellow-500"
                                                   : "bg-green-500"
                                             }`}
-                                            style={{ width: `${packet.anomalyScore * 100}%` }}
+                                            style={{ width: `${((packet.anomaly_score || 0) * 100)}%` }}
                                           />
                                         </div>
                                         <span className="text-sm font-medium">
-                                          {(packet.anomalyScore * 100).toFixed(0)}%
+                                          {((packet.anomaly_score || 0) * 100).toFixed(0)}%
                                         </span>
                                       </div>
                                     </TableCell>
