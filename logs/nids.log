@@ -535,3 +535,24 @@
 2025-09-07 21:49:15,094 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
 2025-09-07 21:49:15,096 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
 2025-09-07 21:49:15,096 - app.main - INFO - NIDS system initialized successfully
+2025-09-07 22:28:17,744 - app.main - INFO - Shutting down NIDS application...
+2025-09-07 22:28:17,759 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-09-07 22:28:17,760 - app.main - INFO - NIDS system stopped successfully
+2025-09-07 22:28:23,539 - app.main - INFO - Starting NIDS application...
+2025-09-07 22:28:23,556 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-07 22:28:23,558 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-07 22:28:23,558 - app.main - INFO - NIDS system initialized successfully
+2025-09-07 22:33:19,415 - app.main - INFO - Shutting down NIDS application...
+2025-09-07 22:33:19,415 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-09-07 22:33:19,416 - app.main - INFO - NIDS system stopped successfully
+2025-09-07 22:33:24,127 - app.main - INFO - Starting NIDS application...
+2025-09-07 22:33:24,147 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-07 22:33:24,148 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-07 22:33:24,148 - app.main - INFO - NIDS system initialized successfully
+2025-09-07 22:34:06,770 - app.main - INFO - Shutting down NIDS application...
+2025-09-07 22:34:06,770 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-09-07 22:34:06,771 - app.main - INFO - NIDS system stopped successfully
+2025-09-07 22:34:09,942 - app.main - INFO - Starting NIDS application...
+2025-09-07 22:34:09,957 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-07 22:34:09,958 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-07 22:34:09,959 - app.main - INFO - NIDS system initialized successfully

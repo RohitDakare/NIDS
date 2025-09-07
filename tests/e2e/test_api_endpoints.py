@@ -17,8 +17,8 @@ class TestAPIEndpoints:
     @pytest.fixture
     def client(self):
         """Create a test client"""
-        import httpx
-        return httpx.AsyncClient(app=app, base_url="http://testserver")
+        from fastapi.testclient import TestClient
+        return TestClient(app)
     
     @pytest.fixture
     def mock_orchestrator(self):
@@ -73,9 +73,9 @@ class TestAPIEndpoints:
             mock.return_value = mock_orchestrator
             yield mock_orchestrator
     
-    async def test_root_endpoint(self, client):
+    def test_root_endpoint(self, client):
         """Test root endpoint"""
-        response = await client.get("/")
+        response = client.get("/")
         
         assert response.status_code == 200
         data = response.json()
@@ -84,9 +84,9 @@ class TestAPIEndpoints:
         assert "status" in data
         assert data["status"] == "running"
     
-    async def test_system_info_endpoint(self, client):
+    def test_system_info_endpoint(self, client):
         """Test system info endpoint"""
-        response = await client.get("/info")
+        response = client.get("/info")
         
         assert response.status_code == 200
         data = response.json()
@@ -96,9 +96,9 @@ class TestAPIEndpoints:
         assert "features" in data
         assert "endpoints" in data
     
-    async def test_health_check_endpoint(self, client, mock_orchestrator):
+    def test_health_check_endpoint(self, client, mock_orchestrator):
         """Test health check endpoint"""
-        response = await client.get("/api/v1/health")
+        response = client.get("/api/v1/health")
         
         assert response.status_code == 200
         data = response.json()
@@ -107,9 +107,9 @@ class TestAPIEndpoints:
         assert "component_health" in data
         assert "uptime_seconds" in data
     
-    async def test_system_status_endpoint(self, client, mock_orchestrator):
+    def test_system_status_endpoint(self, client, mock_orchestrator):
         """Test system status endpoint"""
-        response = await client.get("/api/v1/status")
+        response = client.get("/api/v1/status")
         
         assert response.status_code == 200
         data = response.json()
@@ -122,9 +122,9 @@ class TestAPIEndpoints:
         assert "memory_usage" in data
         assert "cpu_usage" in data
     
-    async def test_start_sniffer_endpoint(self, client, mock_orchestrator):
+    def test_start_sniffer_endpoint(self, client, mock_orchestrator):
         """Test start sniffer endpoint"""
-        response = await client.post("/api/v1/start-sniffer", json={})
+        response = client.post("/api/v1/start-sniffer", json={})
         
         assert response.status_code == 200
         data = response.json()
@@ -135,7 +135,7 @@ class TestAPIEndpoints:
         
         mock_orchestrator.start.assert_called_once()
     
-    async def test_start_sniffer_with_config(self, client, mock_orchestrator):
+    def test_start_sniffer_with_config(self, client, mock_orchestrator):
         """Test start sniffer endpoint with configuration"""
         config = {
             "interface": "eth0",
@@ -143,7 +143,7 @@ class TestAPIEndpoints:
             "timeout": 30
         }
         
-        response = await client.post("/api/v1/start-sniffer", json={"config": config})
+        response = client.post("/api/v1/start-sniffer", json={"config": config})
         
         assert response.status_code == 200
         data = response.json()
@@ -152,9 +152,9 @@ class TestAPIEndpoints:
         mock_orchestrator.update_sniffer_config.assert_called_once()
         mock_orchestrator.start.assert_called_once()
     
-    async def test_stop_sniffer_endpoint(self, client, mock_orchestrator):
+    def test_stop_sniffer_endpoint(self, client, mock_orchestrator):
         """Test stop sniffer endpoint"""
-        response = await client.post("/api/v1/stop-sniffer", json={})
+        response = client.post("/api/v1/stop-sniffer", json={})
         
         assert response.status_code == 200
         data = response.json()
@@ -165,9 +165,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.stop.assert_called_once()
     
-    async def test_get_packets_endpoint(self, client, mock_orchestrator):
+    def test_get_packets_endpoint(self, client, mock_orchestrator):
         """Test get packets endpoint"""
-        response = await client.get("/api/v1/packets?limit=10")
+        response = client.get("/api/v1/packets?limit=10")
         
         assert response.status_code == 200
         data = response.json()
@@ -178,9 +178,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.get_recent_packets.assert_called_once_with(10)
     
-    async def test_get_alerts_endpoint(self, client, mock_orchestrator):
+    def test_get_alerts_endpoint(self, client, mock_orchestrator):
         """Test get alerts endpoint"""
-        response = await client.get("/api/v1/alerts?limit=10")
+        response = client.get("/api/v1/alerts?limit=10")
         
         assert response.status_code == 200
         data = response.json()
@@ -191,9 +191,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.get_alerts.assert_called_once_with(limit=10)
     
-    async def test_get_alerts_with_filters(self, client, mock_orchestrator):
+    def test_get_alerts_with_filters(self, client, mock_orchestrator):
         """Test get alerts endpoint with filters"""
-        response = await client.get("/api/v1/alerts?limit=5&severity=high&detection_type=ml")
+        response = client.get("/api/v1/alerts?limit=5&severity=high&detection_type=ml")
         
         assert response.status_code == 200
         data = response.json()
@@ -203,31 +203,31 @@ class TestAPIEndpoints:
             limit=5, severity='high', detection_type='ml'
         )
     
-    async def test_get_alert_by_id_endpoint(self, client, mock_orchestrator):
+    def test_get_alert_by_id_endpoint(self, client, mock_orchestrator):
         """Test get alert by ID endpoint"""
         mock_alert = Mock()
         mock_alert.id = "alert_123"
         mock_orchestrator.alert_manager.get_alert_by_id.return_value = mock_alert
         
-        response = await client.get("/api/v1/alerts/alert_123")
+        response = client.get("/api/v1/alerts/alert_123")
         
         assert response.status_code == 200
         mock_orchestrator.alert_manager.get_alert_by_id.assert_called_once_with("alert_123")
     
-    async def test_get_alert_by_id_not_found(self, client, mock_orchestrator):
+    def test_get_alert_by_id_not_found(self, client, mock_orchestrator):
         """Test get alert by ID endpoint when alert not found"""
         mock_orchestrator.alert_manager.get_alert_by_id.return_value = None
         
-        response = await client.get("/api/v1/alerts/nonexistent")
+        response = client.get("/api/v1/alerts/nonexistent")
         
         assert response.status_code == 404
         data = response.json()
         assert "detail" in data
         assert "not found" in data["detail"]
     
-    async def test_resolve_alert_endpoint(self, client, mock_orchestrator):
+    def test_resolve_alert_endpoint(self, client, mock_orchestrator):
         """Test resolve alert endpoint"""
-        response = await client.post("/api/v1/alerts/alert_123/resolve?resolution_notes=Resolved")
+        response = client.post("/api/v1/alerts/alert_123/resolve?resolution_notes=Resolved")
         
         assert response.status_code == 200
         data = response.json()
@@ -237,22 +237,22 @@ class TestAPIEndpoints:
         
         mock_orchestrator.resolve_alert.assert_called_once_with("alert_123", "Resolved")
     
-    async def test_resolve_alert_not_found(self, client, mock_orchestrator):
+    def test_resolve_alert_not_found(self, client, mock_orchestrator):
         """Test resolve alert endpoint when alert not found"""
         mock_orchestrator.resolve_alert.return_value = False
         
-        response = await client.post("/api/v1/alerts/nonexistent/resolve")
+        response = client.post("/api/v1/alerts/nonexistent/resolve")
         
         assert response.status_code == 404
         data = response.json()
         assert "detail" in data
         assert "not found" in data["detail"]
     
-    async def test_delete_alert_endpoint(self, client, mock_orchestrator):
+    def test_delete_alert_endpoint(self, client, mock_orchestrator):
         """Test delete alert endpoint"""
         mock_orchestrator.alert_manager.delete_alert.return_value = True
         
-        response = await client.delete("/api/v1/alerts/alert_123")
+        response = client.delete("/api/v1/alerts/alert_123")
         
         assert response.status_code == 200
         data = response.json()
@@ -262,20 +262,20 @@ class TestAPIEndpoints:
         
         mock_orchestrator.alert_manager.delete_alert.assert_called_once_with("alert_123")
     
-    async def test_delete_alert_not_found(self, client, mock_orchestrator):
+    def test_delete_alert_not_found(self, client, mock_orchestrator):
         """Test delete alert endpoint when alert not found"""
         mock_orchestrator.alert_manager.delete_alert.return_value = False
         
-        response = await client.delete("/api/v1/alerts/nonexistent")
+        response = client.delete("/api/v1/alerts/nonexistent")
         
         assert response.status_code == 404
         data = response.json()
         assert "detail" in data
         assert "not found" in data["detail"]
     
-    async def test_get_stats_endpoint(self, client, mock_orchestrator):
+    def test_get_stats_endpoint(self, client, mock_orchestrator):
         """Test get stats endpoint"""
-        response = await client.get("/api/v1/stats")
+        response = client.get("/api/v1/stats")
         
         assert response.status_code == 200
         data = response.json()
@@ -284,9 +284,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.get_detailed_stats.assert_called_once()
     
-    async def test_get_correlation_endpoint(self, client, mock_orchestrator):
+    def test_get_correlation_endpoint(self, client, mock_orchestrator):
         """Test get correlation analysis endpoint"""
-        response = await client.get("/api/v1/correlation")
+        response = client.get("/api/v1/correlation")
         
         assert response.status_code == 200
         data = response.json()
@@ -295,9 +295,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.get_correlation_analysis.assert_called_once()
     
-    async def test_get_signature_rules_endpoint(self, client, mock_orchestrator):
+    def test_get_signature_rules_endpoint(self, client, mock_orchestrator):
         """Test get signature rules endpoint"""
-        response = await client.get("/api/v1/signature-rules")
+        response = client.get("/api/v1/signature-rules")
         
         assert response.status_code == 200
         data = response.json()
@@ -305,9 +305,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.get_signature_rule_stats.assert_called_once()
     
-    async def test_enable_signature_rule_endpoint(self, client, mock_orchestrator):
+    def test_enable_signature_rule_endpoint(self, client, mock_orchestrator):
         """Test enable signature rule endpoint"""
-        response = await client.post("/api/v1/signature-rules/rule_123/enable")
+        response = client.post("/api/v1/signature-rules/rule_123/enable")
         
         assert response.status_code == 200
         data = response.json()
@@ -317,9 +317,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.enable_signature_rule.assert_called_once_with("rule_123")
     
-    async def test_disable_signature_rule_endpoint(self, client, mock_orchestrator):
+    def test_disable_signature_rule_endpoint(self, client, mock_orchestrator):
         """Test disable signature rule endpoint"""
-        response = await client.post("/api/v1/signature-rules/rule_123/disable")
+        response = client.post("/api/v1/signature-rules/rule_123/disable")
         
         assert response.status_code == 200
         data = response.json()
@@ -329,7 +329,7 @@ class TestAPIEndpoints:
         
         mock_orchestrator.disable_signature_rule.assert_called_once_with("rule_123")
     
-    async def test_update_sniffer_config_endpoint(self, client, mock_orchestrator):
+    def test_update_sniffer_config_endpoint(self, client, mock_orchestrator):
         """Test update sniffer config endpoint"""
         config = {
             "interface": "eth0",
@@ -337,7 +337,7 @@ class TestAPIEndpoints:
             "timeout": 60
         }
         
-        response = await client.post("/api/v1/config/sniffer", json=config)
+        response = client.post("/api/v1/config/sniffer", json=config)
         
         assert response.status_code == 200
         data = response.json()
@@ -348,14 +348,14 @@ class TestAPIEndpoints:
         
         mock_orchestrator.update_sniffer_config.assert_called_once()
     
-    async def test_update_ml_config_endpoint(self, client, mock_orchestrator):
+    def test_update_ml_config_endpoint(self, client, mock_orchestrator):
         """Test update ML config endpoint"""
         config = {
             "model_path": "models/new_model.joblib",
             "confidence_threshold": 0.9
         }
         
-        response = await client.post("/api/v1/config/ml", json=config)
+        response = client.post("/api/v1/config/ml", json=config)
         
         assert response.status_code == 200
         data = response.json()
@@ -366,9 +366,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.update_ml_config.assert_called_once()
     
-    async def test_clear_alerts_endpoint(self, client, mock_orchestrator):
+    def test_clear_alerts_endpoint(self, client, mock_orchestrator):
         """Test clear alerts endpoint"""
-        response = await client.post("/api/v1/alerts/clear")
+        response = client.post("/api/v1/alerts/clear")
         
         assert response.status_code == 200
         data = response.json()
@@ -378,9 +378,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.clear_alerts.assert_called_once()
     
-    async def test_clear_alerts_with_age_filter(self, client, mock_orchestrator):
+    def test_clear_alerts_with_age_filter(self, client, mock_orchestrator):
         """Test clear alerts endpoint with age filter"""
-        response = await client.post("/api/v1/alerts/clear?older_than_days=7")
+        response = client.post("/api/v1/alerts/clear?older_than_days=7")
         
         assert response.status_code == 200
         data = response.json()
@@ -390,9 +390,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.clear_alerts.assert_called_once()
     
-    async def test_export_alerts_json_endpoint(self, client, mock_orchestrator):
+    def test_export_alerts_json_endpoint(self, client, mock_orchestrator):
         """Test export alerts JSON endpoint"""
-        response = await client.get("/api/v1/export/alerts?format=json")
+        response = client.get("/api/v1/export/alerts?format=json")
         
         assert response.status_code == 200
         data = response.json()
@@ -405,9 +405,9 @@ class TestAPIEndpoints:
         
         mock_orchestrator.export_alerts.assert_called_once_with(format="json")
     
-    async def test_export_alerts_csv_endpoint(self, client, mock_orchestrator):
+    def test_export_alerts_csv_endpoint(self, client, mock_orchestrator):
         """Test export alerts CSV endpoint"""
-        response = await client.get("/api/v1/export/alerts?format=csv")
+        response = client.get("/api/v1/export/alerts?format=csv")
         
         assert response.status_code == 200
         data = response.json()
@@ -420,31 +420,31 @@ class TestAPIEndpoints:
         
         mock_orchestrator.export_alerts.assert_called_once_with(format="csv")
     
-    async def test_export_alerts_invalid_format(self, client, mock_orchestrator):
+    def test_export_alerts_invalid_format(self, client, mock_orchestrator):
         """Test export alerts endpoint with invalid format"""
-        response = await client.get("/api/v1/export/alerts?format=invalid")
+        response = client.get("/api/v1/export/alerts?format=invalid")
         
         assert response.status_code == 400
         data = response.json()
         assert "detail" in data
         assert "Invalid format" in data["detail"]
     
-    async def test_error_handling(self, client, mock_orchestrator):
+    def test_error_handling(self, client, mock_orchestrator):
         """Test error handling in endpoints"""
         # Mock an error in the orchestrator
         mock_orchestrator.start.side_effect = Exception("Test error")
         
-        response = await client.post("/api/v1/start-sniffer", json={})
+        response = client.post("/api/v1/start-sniffer", json={})
         
         assert response.status_code == 500
         data = response.json()
         assert "detail" in data
         assert "Test error" in data["detail"]
     
-    async def test_nids_not_initialized(self, client):
+    def test_nids_not_initialized(self, client):
         """Test endpoints when NIDS is not initialized"""
         with patch('app.api.routes.nids_orchestrator', None):
-            response = await client.get("/api/v1/status")
+            response = client.get("/api/v1/status")
             
             assert response.status_code == 503
             data = response.json()

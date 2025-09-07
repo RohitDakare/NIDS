@@ -64,20 +64,27 @@ class TestMLDetector:
     
     def test_predict_with_anomaly_detection_model(self, ml_config):
         """Test prediction with anomaly detection model (IsolationForest)"""
-        with patch('joblib.load') as mock_load, \
-             patch.object(MLDetector, '_extract_features') as mock_extract:
+        # Create a simple mock model that behaves like an anomaly detection model
+        class MockAnomalyModel:
+            def predict(self, features):
+                return np.array([-1])  # Always return anomaly
             
-            # Mock the feature extraction to return a proper numpy array
-            mock_features = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]])  # 5 features
-            mock_extract.return_value = mock_features
+            def decision_function(self, features):
+                return np.array([-0.5])  # Anomaly score
+        
+        with patch('joblib.load') as mock_load:
+            mock_load.return_value = MockAnomalyModel()
             
-            mock_model = Mock()
-            mock_model.predict.return_value = np.array([-1])  # Anomaly
-            mock_model.decision_function.return_value = np.array([-0.5])  # Anomaly score
-            mock_load.return_value = mock_model
-            
+            # Create detector
             detector = MLDetector(ml_config)
-            # The model should already be set by the mock
+            
+            # Mock the feature extraction method to return a proper numpy array
+            mock_features = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]])  # 5 features
+            detector._extract_features = Mock(return_value=mock_features)
+            
+            # Verify the model was loaded
+            assert detector.model is not None
+            assert detector.is_loaded == True
             
             packet = create_tcp_packet()
             is_anomalous, confidence, additional_info = detector.predict(packet)
