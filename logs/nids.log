@@ -446,3 +446,29 @@
 2025-08-08 23:01:46,745 - app.main - INFO - Shutting down NIDS application...
 2025-08-08 23:01:46,748 - app.core.nids_orchestrator - WARNING - NIDS system is not running
 2025-08-08 23:01:46,749 - app.main - INFO - NIDS system stopped successfully
+2025-09-07 20:53:17,491 - app.utils.config - INFO - Configuration validation passed
+2025-09-07 20:53:17,498 - __main__ - INFO - Environment validation completed
+2025-09-07 20:53:17,498 - __main__ - INFO - Starting NIDS with configuration:
+2025-09-07 20:53:17,499 - __main__ - INFO -   Network Interface: Wi-Fi
+2025-09-07 20:53:17,499 - __main__ - INFO -   API Host: 0.0.0.0
+2025-09-07 20:53:17,499 - __main__ - INFO -   API Port: 8000
+2025-09-07 20:53:17,499 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-09-07 20:53:17,499 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-09-07 20:53:17,499 - __main__ - INFO - Starting NIDS application...
+2025-09-07 20:53:19,569 - app.main - INFO - Starting NIDS application...
+2025-09-07 20:53:19,583 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-07 20:53:19,584 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-07 20:53:19,584 - app.main - INFO - NIDS system initialized successfully
+2025-09-07 21:18:59,381 - app.utils.config - INFO - Configuration validation passed
+2025-09-07 21:18:59,388 - __main__ - INFO - Environment validation completed
+2025-09-07 21:18:59,388 - __main__ - INFO - Starting NIDS with configuration:
+2025-09-07 21:18:59,388 - __main__ - INFO -   Network Interface: Wi-Fi
+2025-09-07 21:18:59,388 - __main__ - INFO -   API Host: 0.0.0.0
+2025-09-07 21:18:59,388 - __main__ - INFO -   API Port: 8000
+2025-09-07 21:18:59,388 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-09-07 21:18:59,388 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-09-07 21:18:59,389 - __main__ - INFO - Starting NIDS application...
+2025-09-07 21:19:01,613 - app.main - INFO - Starting NIDS application...
+2025-09-07 21:19:01,632 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-07 21:19:01,633 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-07 21:19:01,634 - app.main - INFO - NIDS system initialized successfully
