@@ -82,7 +82,7 @@ class TestSignatureDetector:
         result = signature_detector.enable_rule(rule_id)
         
         assert result == True
-        assert signature_detector.rules[rule_id]['enabled'] == True
+        assert signature_detector.rules[rule_id].enabled == True
     
     def test_enable_nonexistent_rule(self, signature_detector):
         """Test enabling a non-existent rule"""
@@ -96,7 +96,7 @@ class TestSignatureDetector:
         result = signature_detector.disable_rule(rule_id)
         
         assert result == True
-        assert signature_detector.rules[rule_id]['enabled'] == False
+        assert signature_detector.rules[rule_id].enabled == False
     
     def test_disable_nonexistent_rule(self, signature_detector):
         """Test disabling a non-existent rule"""
@@ -125,7 +125,7 @@ class TestSignatureDetector:
         assert 'total_rules' in stats
         assert 'enabled_rules' in stats
         assert 'matches_count' in stats
-        assert 'detection_rate' in stats
+        assert 'connection_count' in stats
         
         assert stats['total_rules'] > 0
         assert stats['enabled_rules'] >= 0

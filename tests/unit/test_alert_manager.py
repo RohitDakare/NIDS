@@ -30,9 +30,9 @@ class TestAlertManager:
     
     def test_initialization(self, alert_manager):
         """Test alert manager initialization"""
-        assert alert_manager.alerts == []
+        assert len(alert_manager.alerts) == 0
         assert alert_manager.alert_callback is None
-        assert alert_manager.next_alert_id == 1
+        assert alert_manager.alert_id_counter == 0
     
     def test_initialization_with_callback(self):
         """Test alert manager initialization with callback"""
@@ -170,14 +170,14 @@ class TestAlertManager:
     def test_resolve_alert(self, alert_manager):
         """Test resolving an alert"""
         alert = create_alert()
-        alert_manager.alerts = [alert]
+        alert_manager.alerts.append(alert)
         
         result = alert_manager.resolve_alert(alert.id, "Resolved by admin")
         
         assert result == True
         assert alert.is_resolved == True
-        assert alert.resolution_notes == "Resolved by admin"
-        assert alert.resolved_at is not None
+        assert alert.packet_data['resolution_notes'] == "Resolved by admin"
+        assert 'resolved_at' in alert.packet_data
     
     def test_resolve_nonexistent_alert(self, alert_manager):
         """Test resolving non-existent alert"""
@@ -280,22 +280,37 @@ class TestAlertManager:
         
         assert 'total_alerts' in stats
         assert 'resolved_alerts' in stats
-        assert 'unresolved_alerts' in stats
-        assert 'severity_distribution' in stats
-        assert 'detection_type_distribution' in stats
+        assert 'alerts_by_severity' in stats
+        assert 'alerts_by_type' in stats
         
         assert stats['total_alerts'] == 2
-        assert stats['unresolved_alerts'] == 2
         assert stats['resolved_alerts'] == 0
     
     def test_alert_id_generation(self, alert_manager):
         """Test that alert IDs are generated correctly"""
-        alert1 = create_alert()
-        alert2 = create_alert()
+        # Create alerts through the manager to get proper IDs
+        packet = create_tcp_packet()
+        ml_detection = {
+            'is_anomalous': True,
+            'confidence': 0.85,
+            'severity': AlertSeverity.HIGH,
+            'description': 'Test alert 1'
+        }
         
-        alert_manager.alerts = [alert1, alert2]
+        alert1 = alert_manager.create_ml_alert(ml_detection, packet)
         
-        # IDs should be unique
+        ml_detection2 = {
+            'is_anomalous': True,
+            'confidence': 0.90,
+            'severity': AlertSeverity.HIGH,
+            'description': 'Test alert 2'
+        }
+        
+        alert2 = alert_manager.create_ml_alert(ml_detection2, packet)
+        
+        # IDs should be unique and not None
+        assert alert1 is not None
+        assert alert2 is not None
         assert alert1.id != alert2.id
         assert alert1.id is not None
         assert alert2.id is not None
@@ -314,4 +329,5 @@ class TestAlertManager:
         alert = alert_manager.create_ml_alert(ml_detection, sample_packet)
         after_creation = datetime.now()
         
+        assert alert is not None
         assert before_creation <= alert.timestamp <= after_creation

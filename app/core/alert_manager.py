@@ -58,7 +58,7 @@ class AlertManager:
             # Create alert
             alert = Alert(
                 id=alert_id,
-                timestamp=packet.timestamp,
+                timestamp=datetime.now(),
                 severity=severity,
                 detection_type=detection_type,
                 description=description,
@@ -126,9 +126,16 @@ class AlertManager:
     def create_hybrid_alert(self, ml_detection: Dict[str, Any], signature_detection: Dict[str, Any], packet: PacketInfo) -> Optional[Alert]:
         """Create hybrid alert combining ML and signature detections"""
         # Combine detection information
+        ml_severity = ml_detection.get('severity', AlertSeverity.LOW)
+        sig_severity = signature_detection.get('severity', AlertSeverity.LOW)
+        
+        # Use higher severity (critical > high > medium > low)
+        severity_order = {AlertSeverity.LOW: 0, AlertSeverity.MEDIUM: 1, 
+                         AlertSeverity.HIGH: 2, AlertSeverity.CRITICAL: 3}
+        combined_severity = ml_severity if severity_order[ml_severity] >= severity_order[sig_severity] else sig_severity
+        
         combined_info = {
-            'severity': max(ml_detection.get('severity', AlertSeverity.LOW), 
-                          signature_detection.get('severity', AlertSeverity.LOW)),
+            'severity': combined_severity,
             'description': f"Hybrid detection: {ml_detection.get('description', '')} + {signature_detection.get('description', '')}",
             'confidence': max(ml_detection.get('confidence', 0.0), 
                             signature_detection.get('confidence', 0.0)),

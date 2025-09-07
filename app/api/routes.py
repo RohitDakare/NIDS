@@ -43,7 +43,7 @@ async def start_sniffer(
         return {
             "status": "success",
             "message": "NIDS system started successfully",
-            "system_status": orchestrator.get_system_status().dict()
+            "system_status": orchestrator.get_system_status().model_dump()
         }
         
     except Exception as e:
@@ -64,7 +64,7 @@ async def stop_sniffer(
         return {
             "status": "success",
             "message": "NIDS system stopped successfully",
-            "system_status": orchestrator.get_system_status().dict()
+            "system_status": orchestrator.get_system_status().model_dump()
         }
         
     except Exception as e:
@@ -298,7 +298,7 @@ async def update_sniffer_config(
         return {
             "status": "success",
             "message": "Sniffer configuration updated successfully",
-            "config": config.dict()
+            "config": config.model_dump()
         }
         
     except Exception as e:
@@ -319,7 +319,7 @@ async def update_ml_config(
         return {
             "status": "success",
             "message": "ML configuration updated successfully",
-            "config": config.dict()
+            "config": config.model_dump()
         }
         
     except Exception as e:

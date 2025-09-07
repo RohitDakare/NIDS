@@ -162,17 +162,21 @@ class SignatureDetector:
             del self.rules[rule_id]
             logger.info(f"Removed signature rule: {rule_id}")
     
-    def enable_rule(self, rule_id: str):
+    def enable_rule(self, rule_id: str) -> bool:
         """Enable a signature rule"""
         if rule_id in self.rules:
             self.rules[rule_id].enabled = True
             logger.info(f"Enabled signature rule: {rule_id}")
+            return True
+        return False
     
-    def disable_rule(self, rule_id: str):
+    def disable_rule(self, rule_id: str) -> bool:
         """Disable a signature rule"""
         if rule_id in self.rules:
             self.rules[rule_id].enabled = False
             logger.info(f"Disabled signature rule: {rule_id}")
+            return True
+        return False
     
     def detect(self, packet: PacketInfo) -> List[Dict[str, Any]]:
         """Detect signatures in a packet"""

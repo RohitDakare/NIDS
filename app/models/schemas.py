@@ -28,7 +28,7 @@ class PacketInfo(BaseModel):
 
 class Alert(BaseModel):
     """Alert model"""
-    id: Optional[int] = None
+    id: Optional[str] = None
     timestamp: datetime
     severity: AlertSeverity
     detection_type: DetectionType

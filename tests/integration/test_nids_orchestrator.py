@@ -89,6 +89,12 @@ class TestNIDSOrchestrator:
                 alert_callback=Mock()
             )
             
+            # Replace real components with mocks
+            orchestrator.packet_sniffer = mock_sniffer_instance
+            orchestrator.ml_detector = mock_ml_instance
+            orchestrator.signature_detector = mock_sig_instance
+            orchestrator.alert_manager = mock_alert_instance
+            
             # Store references to mocked components
             orchestrator._mock_sniffer = mock_sniffer_instance
             orchestrator._mock_ml = mock_ml_instance

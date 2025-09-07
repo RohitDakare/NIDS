@@ -279,7 +279,7 @@ class NIDSOrchestrator:
             
             # Construct and return the detailed stats
             return {
-                'system_status': self.get_system_status().dict(),
+                'system_status': self.get_system_status().model_dump(),
                 'sniffer_stats': sniffer_stats,
                 'ml_stats': ml_stats,
                 'signature_stats': signature_stats,
