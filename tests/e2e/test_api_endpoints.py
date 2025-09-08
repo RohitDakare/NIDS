@@ -23,54 +23,59 @@ class TestAPIEndpoints:
     @pytest.fixture
     def mock_orchestrator(self):
         """Create a mock orchestrator"""
-        with patch('app.api.routes.nids_orchestrator') as mock:
-            mock_orchestrator = Mock()
-            mock_orchestrator.get_system_status.return_value = Mock(
-                is_running=False,
-                uptime=0.0,
-                packets_captured=0,
-                alerts_generated=0,
-                ml_predictions=0,
-                signature_matches=0,
-                memory_usage=50.0,
-                cpu_usage=25.0
-            )
-            mock_orchestrator.get_detailed_stats.return_value = {
-                'system_status': {
-                    'is_running': False,
-                    'uptime': 0.0,
-                    'packets_captured': 0,
-                    'alerts_generated': 0,
-                    'ml_predictions': 0,
-                    'signature_matches': 0,
-                    'memory_usage': 50.0,
-                    'cpu_usage': 25.0
-                },
-                'component_health': {
-                    'sniffer_healthy': True,
-                    'ml_healthy': True,
-                    'signature_healthy': True,
-                    'alert_manager_healthy': True
-                }
+        mock_orchestrator = Mock()
+        from app.models.schemas import SystemStatus
+        mock_orchestrator.get_system_status.return_value = SystemStatus(
+            is_running=False,
+            uptime=0.0,
+            packets_captured=0,
+            alerts_generated=0,
+            ml_predictions=0,
+            signature_matches=0,
+            memory_usage=50.0,
+            cpu_usage=25.0
+        )
+        mock_orchestrator.get_detailed_stats.return_value = {
+            'system_status': {
+                'is_running': False,
+                'uptime': 0.0,
+                'packets_captured': 0,
+                'alerts_generated': 0,
+                'ml_predictions': 0,
+                'signature_matches': 0,
+                'memory_usage': 50.0,
+                'cpu_usage': 25.0
+            },
+            'component_health': {
+                'sniffer_healthy': True,
+                'ml_healthy': True,
+                'signature_healthy': True,
+                'alert_manager_healthy': True
             }
-            mock_orchestrator.get_recent_packets.return_value = []
-            mock_orchestrator.get_alerts.return_value = []
-            mock_orchestrator.get_correlation_analysis.return_value = {
-                'total_correlations': 0,
-                'correlations': []
-            }
-            mock_orchestrator.get_signature_rule_stats.return_value = []
-            mock_orchestrator.start.return_value = True
-            mock_orchestrator.stop.return_value = True
-            mock_orchestrator.update_sniffer_config.return_value = True
-            mock_orchestrator.update_ml_config.return_value = True
-            mock_orchestrator.resolve_alert.return_value = True
-            mock_orchestrator.clear_alerts.return_value = None
-            mock_orchestrator.export_alerts.return_value = '{"alerts": []}'
-            mock_orchestrator.enable_signature_rule.return_value = True
-            mock_orchestrator.disable_signature_rule.return_value = True
-            
-            mock.return_value = mock_orchestrator
+        }
+        mock_orchestrator.get_recent_packets.return_value = []
+        mock_orchestrator.get_alerts.return_value = []
+        mock_orchestrator.get_correlation_analysis.return_value = {
+            'total_correlations': 0,
+            'correlations': []
+        }
+        mock_orchestrator.get_signature_rule_stats.return_value = []
+        mock_orchestrator.start.return_value = True
+        mock_orchestrator.stop.return_value = True
+        mock_orchestrator.update_sniffer_config.return_value = True
+        mock_orchestrator.update_ml_config.return_value = True
+        mock_orchestrator.resolve_alert.return_value = True
+        mock_orchestrator.clear_alerts.return_value = None
+        mock_orchestrator.export_alerts.return_value = '{"alerts": []}'
+        mock_orchestrator.enable_signature_rule.return_value = True
+        mock_orchestrator.disable_signature_rule.return_value = True
+        
+        # Mock the alert manager
+        mock_orchestrator.alert_manager = Mock()
+        mock_orchestrator.alert_manager.get_alert_by_id.return_value = None
+        mock_orchestrator.alert_manager.delete_alert.return_value = True
+        
+        with patch('app.api.routes.nids_orchestrator', mock_orchestrator):
             yield mock_orchestrator
     
     def test_root_endpoint(self, client):
@@ -176,7 +181,7 @@ class TestAPIEndpoints:
         assert "page" in data
         assert "page_size" in data
         
-        mock_orchestrator.get_recent_packets.assert_called_once_with(10)
+        mock_orchestrator.get_recent_packets.assert_called_once_with(limit=10)
     
     def test_get_alerts_endpoint(self, client, mock_orchestrator):
         """Test get alerts endpoint"""
@@ -207,6 +212,19 @@ class TestAPIEndpoints:
         """Test get alert by ID endpoint"""
         mock_alert = Mock()
         mock_alert.id = "alert_123"
+        mock_alert.severity = "high"
+        mock_alert.detection_type = "ml"
+        mock_alert.description = "Test alert"
+        mock_alert.source_ip = "192.168.1.1"
+        mock_alert.dest_ip = "192.168.1.2"
+        mock_alert.protocol = "TCP"
+        mock_alert.packet_data = {"test": "data"}
+        mock_alert.timestamp = "2024-01-01T00:00:00Z"
+        mock_alert.resolved = False
+        mock_alert.resolution_notes = None
+        mock_alert.confidence_score = 0.95
+        mock_alert.is_resolved = False
+        
         mock_orchestrator.alert_manager.get_alert_by_id.return_value = mock_alert
         
         response = client.get("/api/v1/alerts/alert_123")
