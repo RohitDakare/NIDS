@@ -682,3 +682,53 @@ To install, run: pip install email-validator
 2025-09-08 07:45:27,782 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
 2025-09-08 07:45:27,783 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
 2025-09-08 07:45:27,783 - app.main - INFO - NIDS system initialized successfully
+2025-09-08 07:47:01,876 - app.main - INFO - Shutting down NIDS application...
+2025-09-08 07:47:01,876 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-09-08 07:47:01,876 - app.main - INFO - NIDS system stopped successfully
+2025-09-08 07:47:04,710 - app.main - INFO - Starting NIDS application...
+2025-09-08 07:47:04,720 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-08 07:47:04,721 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-08 07:47:04,722 - app.main - INFO - NIDS system initialized successfully
+2025-09-08 07:48:42,015 - app.core.nids_orchestrator - INFO - NIDS system started successfully
+2025-09-08 07:48:47,667 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-09-08 07:48:47,668 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-09-08 07:48:47,669 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Error opening adapter: The filename, directory name, or volume label syntax is incorrect.  (123)
+2025-09-08 07:48:47,669 - app.core.nids_orchestrator - INFO - Sniffer configuration updated successfully
+2025-09-08 07:48:47,669 - app.core.nids_orchestrator - WARNING - NIDS system is already running
+2025-09-08 07:48:47,669 - app.api.routes - ERROR - Error starting sniffer: 
+2025-09-08 07:48:48,519 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-09-08 07:48:48,520 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-09-08 07:48:48,520 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Error opening adapter: The filename, directory name, or volume label syntax is incorrect.  (123)
+2025-09-08 07:48:48,520 - app.core.nids_orchestrator - INFO - Sniffer configuration updated successfully
+2025-09-08 07:48:48,520 - app.core.nids_orchestrator - WARNING - NIDS system is already running
+2025-09-08 07:48:48,520 - app.api.routes - ERROR - Error starting sniffer: 
+2025-09-08 07:49:15,755 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-09-08 07:49:15,756 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-09-08 07:49:15,756 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Error opening adapter: The filename, directory name, or volume label syntax is incorrect.  (123)
+2025-09-08 07:49:15,757 - app.core.nids_orchestrator - INFO - Sniffer configuration updated successfully
+2025-09-08 07:49:15,757 - app.core.nids_orchestrator - WARNING - NIDS system is already running
+2025-09-08 07:49:15,757 - app.api.routes - ERROR - Error starting sniffer: 
+2025-09-08 07:50:30,230 - app.main - INFO - Shutting down NIDS application...
+2025-09-08 07:50:30,230 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-09-08 07:50:30,230 - app.core.nids_orchestrator - INFO - NIDS system stopped successfully
+2025-09-08 07:50:30,230 - app.main - INFO - NIDS system stopped successfully
+2025-09-08 07:52:25,866 - app.utils.config - INFO - Configuration validation passed
+2025-09-08 07:52:25,871 - __main__ - INFO - Environment validation completed
+2025-09-08 07:52:25,872 - __main__ - INFO - Starting NIDS with configuration:
+2025-09-08 07:52:25,872 - __main__ - INFO -   Network Interface: Wi-Fi
+2025-09-08 07:52:25,873 - __main__ - INFO -   API Host: 0.0.0.0
+2025-09-08 07:52:25,873 - __main__ - INFO -   API Port: 8000
+2025-09-08 07:52:25,873 - __main__ - INFO -   ML Model: models/nids_model.joblib
+2025-09-08 07:52:25,873 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-09-08 07:52:25,874 - __main__ - INFO - Starting NIDS application...
+2025-09-08 07:52:27,987 - app.main - INFO - Starting NIDS application...
+2025-09-08 07:52:27,997 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-08 07:52:27,999 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-08 07:52:27,999 - app.main - INFO - NIDS system initialized successfully
+2025-09-08 07:59:31,702 - app.main - INFO - Starting NIDS application...
+2025-09-08 07:59:31,718 - app.core.ml_detector - INFO - Loaded ML model from models/nids_model.joblib
+2025-09-08 07:59:31,719 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-08 07:59:31,719 - app.main - INFO - NIDS system initialized successfully
+2025-09-08 08:01:34,621 - app.core.nids_orchestrator - INFO - NIDS system started successfully
+2025-09-08 08:01:55,843 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
+2025-09-08 08:01:55,844 - app.core.nids_orchestrator - INFO - NIDS system stopped successfully
