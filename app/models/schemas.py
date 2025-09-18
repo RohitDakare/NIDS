@@ -49,7 +49,7 @@ class SnifferConfig(BaseModel):
 
 class MLModelConfig(BaseModel):
     """ML model configuration"""
-    model_path: str = Field(default="models/nids_model.joblib")
+    model_path: str = Field(default="app/ml_models/nids_model.joblib")
     confidence_threshold: float = Field(default=0.8, ge=0.0, le=1.0)
     feature_columns: List[str] = Field(default_factory=list)
 

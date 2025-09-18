@@ -105,7 +105,7 @@ def create_sniffer_config():
 def create_ml_config():
     """Create a test ML model configuration"""
     return MLModelConfig(
-        model_path="models/test_model.joblib",
+        model_path="app/ml_models/test_model.joblib",
         confidence_threshold=0.8,
         feature_columns=[
             'packet_length', 'payload_size', 'source_port', 'dest_port',

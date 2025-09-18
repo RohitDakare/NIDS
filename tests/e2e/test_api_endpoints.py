@@ -369,19 +369,19 @@ class TestAPIEndpoints:
     def test_update_ml_config_endpoint(self, client, mock_orchestrator):
         """Test update ML config endpoint"""
         config = {
-            "model_path": "models/new_model.joblib",
+            "model_path": "app/ml_models/new_model.joblib",
             "confidence_threshold": 0.9
         }
-        
+
         response = client.post("/api/v1/config/ml", json=config)
-        
+
         assert response.status_code == 200
         data = response.json()
         assert "status" in data
         assert "message" in data
         assert "config" in data
         assert data["status"] == "success"
-        
+
         mock_orchestrator.update_ml_config.assert_called_once()
     
     def test_clear_alerts_endpoint(self, client, mock_orchestrator):

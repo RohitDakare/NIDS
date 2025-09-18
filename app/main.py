@@ -27,7 +27,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Create necessary directories
-os.makedirs('models', exist_ok=True)
+os.makedirs('app/ml_models', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 os.makedirs('logs', exist_ok=True)
 
@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
         )
         
         ml_config = MLModelConfig(
-            model_path=os.getenv("MODEL_PATH", "models/nids_model.joblib"),
+            model_path=os.getenv("MODEL_PATH", "app/ml_models/nids_model.joblib"),
             confidence_threshold=float(os.getenv("CONFIDENCE_THRESHOLD", "0.8"))
         )
         

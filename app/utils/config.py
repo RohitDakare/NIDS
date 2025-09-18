@@ -17,7 +17,7 @@ class Config:
     TIMEOUT = int(os.getenv("TIMEOUT", "30"))
     
     # ML Model Configuration
-    MODEL_PATH = os.getenv("MODEL_PATH", "models/nids_model.joblib")
+    MODEL_PATH = os.getenv("MODEL_PATH", "app/ml_models/nids_model.joblib")
     CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.8"))
     
     # Database Configuration
@@ -136,8 +136,8 @@ class Config:
     def create_directories(cls):
         """Create necessary directories"""
         directories = [
-            "models",
-            "data", 
+            "app/ml_models",
+            "data",
             "logs",
             os.path.dirname(cls.LOG_FILE)
         ]

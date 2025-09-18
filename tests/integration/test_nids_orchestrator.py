@@ -361,12 +361,12 @@ class TestNIDSOrchestrator:
     def test_update_ml_config(self, orchestrator):
         """Test updating ML configuration"""
         new_config = MLModelConfig(
-            model_path="models/new_model.joblib",
+            model_path="app/ml_models/new_model.joblib",
             confidence_threshold=0.9
         )
-        
+
         result = orchestrator.update_ml_config(new_config)
-        
+
         assert result == True
         assert orchestrator.ml_config == new_config
     

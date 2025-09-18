@@ -24,7 +24,7 @@ def test_data_dir():
 @pytest.fixture(scope="session")
 def test_models_dir(test_data_dir):
     """Create a temporary directory for test models"""
-    models_dir = os.path.join(test_data_dir, "models")
+    models_dir = os.path.join(test_data_dir, "app/ml_models")
     os.makedirs(models_dir, exist_ok=True)
     return models_dir
 
@@ -42,7 +42,7 @@ def mock_environment_variables():
         'INTERFACE': 'lo',
         'PACKET_COUNT': '100',
         'TIMEOUT': '30',
-        'MODEL_PATH': 'models/test_model.joblib',
+        'MODEL_PATH': 'app/ml_models/test_model.joblib',
         'CONFIDENCE_THRESHOLD': '0.8',
         'API_HOST': '127.0.0.1',
         'API_PORT': '8000',

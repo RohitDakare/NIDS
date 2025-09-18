@@ -119,8 +119,8 @@ def create_directories():
     print_section("Creating Directories")
     
     directories = [
-        "models",
-        "data", 
+        "app/ml_models",
+        "data",
         "logs",
         "tests"
     ]
@@ -139,7 +139,7 @@ PACKET_COUNT=1000
 TIMEOUT=30
 
 # ML Model Settings
-MODEL_PATH=models/nids_model.joblib
+MODEL_PATH=app/ml_models/nids_model.joblib
 CONFIDENCE_THRESHOLD=0.8
 
 # Database Configuration
@@ -279,7 +279,7 @@ def print_next_steps():
     
     print("\n5. Configure the system:")
     print("   - Edit .env file for configuration")
-    print("   - Add your own ML models to models/ directory")
+    print("   - Add your own ML models to app/ml_models/ directory")
     print("   - Customize signature rules")
     
     print("\n🔧 Configuration Options:")
