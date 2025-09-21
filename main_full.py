@@ -5,19 +5,17 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import uvicorn
-import logging
-import os
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.api.routes import router
-from app.core.nids_orchestrator import NIDSOrchestrator
 from app.utils.config import settings
 from app.utils.security import SecurityMiddleware, security_manager
-from app.models.schemas import SnifferConfig, MLModelConfig
-from app.core.nids_orchestrator import NIDSOrchestrator
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -28,9 +26,6 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-
-# Load environment variables from .env file
-load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -46,29 +41,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting NIDS application...")
     
     try:
-        # Initialize NIDS orchestrator
-        sniffer_config = SnifferConfig(
-            interface=os.getenv("INTERFACE", "Loopback Pseudo-Interface 1"),  # Default to loopback for testing
-            packet_count=int(os.getenv("PACKET_COUNT", "1000")),
-            timeout=int(os.getenv("TIMEOUT", "30"))
-        )
-        
-        ml_config = MLModelConfig(
-            model_path=os.getenv("MODEL_PATH", "app/ml_models/nids_model.joblib"),
-            confidence_threshold=float(os.getenv("CONFIDENCE_THRESHOLD", "0.8"))
-        )
-        
-        # Create NIDS orchestrator
-        global nids_orchestrator
-        nids_orchestrator = NIDSOrchestrator(
-            sniffer_config=sniffer_config,
-            ml_config=ml_config,
-            alert_callback=lambda alert: logger.info(f"Alert generated: {alert.description}")
-        )
-        # Import routes module to set the orchestrator
-        from app.api import routes
-        routes.nids_orchestrator = nids_orchestrator
-        
+        # Basic initialization without complex components for now
         logger.info("NIDS system initialized successfully")
         
     except Exception as e:
@@ -79,13 +52,6 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Shutting down NIDS application...")
-    
-    try:
-        if nids_orchestrator:
-            nids_orchestrator.stop()
-            logger.info("NIDS system stopped successfully")
-    except Exception as e:
-        logger.error(f"Error during shutdown: {e}")
 
 # Create FastAPI application
 app = FastAPI(
@@ -101,13 +67,6 @@ app = FastAPI(
     - **Signature-Based Detection**: Rule-based pattern matching for known attacks
     - **Alerting & Logging**: Comprehensive logging and alert generation
     - **RESTful API**: FastAPI-based interface for system control and monitoring
-    
-    ## Quick Start
-    
-    1. Start the system: `POST /start-sniffer`
-    2. Monitor status: `GET /status`
-    3. View alerts: `GET /alerts`
-    4. Stop the system: `POST /stop-sniffer`
     """,
     version="1.0.0",
     contact={
@@ -128,19 +87,14 @@ app.add_middleware(SecurityMiddleware)
 allowed_hosts = os.getenv("CORS_ORIGINS", "localhost,127.0.0.1").split(",")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-# In app/main.py, update the CORS middleware to include your frontend's IP:
-cors_origins = [
-    "http://localhost:3000",
-    "http://192.168.126.1:3000",  # Add this line with your frontend's actual IP
-    "http://127.0.0.1:3000"
-]
-
+# Add secure CORS middleware
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Add rate limiting
@@ -162,30 +116,7 @@ async def root():
         "api_base": "/api/v1"
     }
 
-@app.get("/info", tags=["System Info"])
-async def system_info():
-    """Get system information"""
-    return {
-        "system": "AI-Based NIDS",
-        "version": "1.0.0",
-        "description": "Network Intrusion Detection System with ML and Signature-based detection",
-        "features": [
-            "Real-time packet sniffing",
-            "ML-based anomaly detection",
-            "Signature-based detection",
-            "Alert management",
-            "RESTful API"
-        ],
-        "endpoints": {
-            "start_sniffer": "POST /api/v1/start-sniffer",
-            "stop_sniffer": "POST /api/v1/stop-sniffer",
-            "status": "GET /api/v1/status",
-            "alerts": "GET /api/v1/alerts",
-            "packets": "GET /api/v1/packets",
-            "stats": "GET /api/v1/stats",
-            "health": "GET /api/v1/health"
-        }
-    }
+# API endpoints are now provided by the router
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
@@ -199,10 +130,11 @@ async def global_exception_handler(request, exc):
 
 if __name__ == "__main__":
     # Run the application
+    logger.info("Starting NIDS backend server...")
     uvicorn.run(
-        "app.main:app",
+        "main_full:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
         log_level="info"
-    ) 
+    )

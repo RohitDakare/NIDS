@@ -1,6 +1,7 @@
 import os
 from typing import Optional
-from pydantic import BaseSettings, Field
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -42,9 +43,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_BYTES_PER_SECOND: int = Field(default=1000000, description="Byte rate limit")
     CORRELATION_WINDOW_MINUTES: int = Field(default=5, description="Alert correlation window")
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": True
+    }
 
 
 # Global settings instance

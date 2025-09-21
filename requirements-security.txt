@@ -1,0 +1,32 @@
+# Security Dependencies for NIDS
+# Install with: pip install -r requirements-security.txt
+
+# Authentication and JWT
+PyJWT>=2.8.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+
+# Rate limiting and security middleware
+slowapi>=0.1.9
+python-jose[cryptography]>=3.3.0
+
+# Input validation and sanitization
+email-validator>=2.1.0
+python-validator>=1.2.0
+
+# HTTPS and SSL support
+uvicorn[standard]>=0.24.0
+cryptography>=41.0.0
+
+# Security headers and middleware
+secure>=0.3.0
+
+# Audit logging
+structlog>=23.2.0
+
+# IP address validation
+ipaddress>=1.0.23
+
+# Additional security utilities
+bcrypt>=4.1.0
+argon2-cffi>=23.1.0

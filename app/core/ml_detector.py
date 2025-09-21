@@ -2,10 +2,14 @@ import os
 import joblib
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any, Union
-from datetime import datetime
+from typing import Tuple, Dict, Any, Optional, List, Union
 import logging
+from datetime import datetime
+import os
 import warnings
+
+from app.models.schemas import PacketInfo, MLModelConfig
+from app.utils.security import model_security
 from sklearn.ensemble import RandomForestClassifier, IsolationForest, GradientBoostingClassifier
 from sklearn.svm import OneClassSVM, SVC
 from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler, OneHotEncoder
@@ -265,43 +269,42 @@ class MLDetector:
     
     @classmethod
     def load_model(cls, model_path: str):
-        """Load a trained model from disk."""
+        """Load a trained model from disk with security verification."""
         try:
+            # Verify model integrity first
+            if not model_security.verify_model_integrity(model_path):
+                logger.error(f"Model integrity check failed for {model_path}")
+                return None
+            
             # Load the model
-            loaded_obj = joblib.load(model_path)
-
-            # Create a new instance with default config
-            detector = cls(MLModelConfig())
-
-            # Case 1: A full sklearn Pipeline was saved
-            if hasattr(loaded_obj, 'named_steps') and 'classifier' in getattr(loaded_obj, 'named_steps', {}):
-                detector.pipeline = loaded_obj
-                detector.model = loaded_obj.named_steps['classifier']
-                detector.is_loaded = True
-            # Case 2: A raw estimator was saved (e.g., RandomForestClassifier)
-            elif hasattr(loaded_obj, 'predict'):
-                detector.model = loaded_obj
-                # For raw estimators trained on already-processed arrays, skip preprocessing
-                detector.pipeline = loaded_obj
-                detector.model_expects_raw = True
-                detector.is_loaded = True
+            model_data = joblib.load(model_path)
+            
+            if isinstance(model_data, dict):
+                # New format with metadata
+                model = model_data.get('model')
+                feature_names = model_data.get('feature_names', [])
+                model_type = model_data.get('model_type', 'unknown')
+                training_score = model_data.get('training_score', 0.0)
+                
+                logger.info(f"Loaded model: {model_type} (score: {training_score:.4f})")
             else:
-                raise ValueError("Unsupported model artifact: expected sklearn Pipeline or estimator")
+                # Legacy format - just the model
+                model = model_data
+                feature_names = []
+                model_type = 'legacy'
+                training_score = 0.0
             
-            # Load metadata if available
-            metadata_path = os.path.join(os.path.dirname(model_path), 'model_metadata.json')
-            if os.path.exists(metadata_path):
-                with open(metadata_path, 'r') as f:
-                    metadata = json.load(f)
-                detector.feature_columns = metadata.get('feature_columns', [])
-                detector.categorical_columns = metadata.get('categorical_columns', [])
-                detector.numerical_columns = metadata.get('numerical_columns', [])
-                detector.metrics = metadata.get('metrics', {})
+            # Create detector instance
+            detector = cls(MLModelConfig(model_path=model_path))
+            detector.model = model
+            detector.feature_names = feature_names
+            detector.is_loaded = True
             
+            logger.info(f"Secure model loaded successfully from {model_path}")
             return detector
             
         except Exception as e:
-            logger.error(f"Error loading model: {str(e)}", exc_info=True)
+            logger.error(f"Failed to load model from {model_path}: {e}")
             return None
     
     def predict(self, packet: PacketInfo) -> Tuple[bool, float, Dict[str, Any]]:

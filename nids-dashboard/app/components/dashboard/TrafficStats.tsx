@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -88,7 +89,7 @@ const COLORS = {
   info: '#3b82f6'
 };
 
-export function TrafficStats({ data }: TrafficStatsProps) {
+export const TrafficStats: React.FC<TrafficStatsProps> = ({ data }) => {
   const [timeRange, setTimeRange] = useState('6h');
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -690,6 +691,7 @@ export function TrafficStats({ data }: TrafficStatsProps) {
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -698,6 +700,6 @@ export function TrafficStats({ data }: TrafficStatsProps) {
       </Tabs>
     </div>
   );
-}
+};
 
 

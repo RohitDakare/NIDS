@@ -1,17 +1,26 @@
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, Request
+from fastapi.security import HTTPAuthorizationCredentials
 from typing import List, Optional, Dict, Any
 import logging
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
 
 from app.models.schemas import (
     StartSnifferRequest, StopSnifferRequest, AlertResponse, PacketResponse,
     StatsResponse, SystemStatus, Alert, PacketInfo, SnifferConfig, MLModelConfig
 )
 from app.core.nids_orchestrator import NIDSOrchestrator
+from app.utils.security import (
+    verify_api_key, security_manager, input_validator, get_client_ip
+)
 
 logger = logging.getLogger(__name__)
 
 # Create router
 router = APIRouter()
+
+# Rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 # Global NIDS orchestrator instance (will be set by main.py)
 nids_orchestrator: Optional[NIDSOrchestrator] = None
@@ -22,15 +31,41 @@ def get_nids_orchestrator() -> NIDSOrchestrator:
         raise HTTPException(status_code=503, detail="NIDS system not initialized")
     return nids_orchestrator
 
+async def log_api_access(request: Request, endpoint: str, user_token: str = None):
+    """Log API access for audit trail"""
+    client_ip = get_client_ip(request)
+    
+    security_manager.log_security_event(
+        "api_access",
+        {
+            "endpoint": endpoint,
+            "method": request.method,
+            "user_agent": request.headers.get("user-agent", "unknown"),
+            "has_auth": bool(user_token)
+        },
+        client_ip
+    )
+
 @router.post("/start-sniffer", response_model=Dict[str, Any])
+@limiter.limit("10/minute")
 async def start_sniffer(
+    request_obj: Request,
     request: StartSnifferRequest,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Start packet sniffing and NIDS monitoring"""
     try:
-        # Update sniffer config if provided
+        # Log API access
+        await log_api_access(request_obj, "start-sniffer", token)
+        
+        # Validate configuration if provided
         if request.config:
+            # Validate interface name
+            if hasattr(request.config, 'interface') and request.config.interface:
+                if not input_validator.validate_interface_name(request.config.interface):
+                    raise HTTPException(status_code=400, detail="Invalid interface name")
+            
             success = orchestrator.update_sniffer_config(request.config)
             if not success:
                 raise HTTPException(status_code=500, detail="Failed to update sniffer configuration")
@@ -40,6 +75,13 @@ async def start_sniffer(
         if not success:
             raise HTTPException(status_code=500, detail="Failed to start NIDS system")
         
+        # Log security event
+        security_manager.log_security_event(
+            "nids_started",
+            {"interface": getattr(request.config, 'interface', 'default') if request.config else 'default'},
+            get_client_ip(request_obj)
+        )
+        
         return {
             "status": "success",
             "message": "NIDS system started successfully",
@@ -48,12 +90,20 @@ async def start_sniffer(
         
     except Exception as e:
         logger.error(f"Error starting sniffer: {e}")
+        security_manager.log_security_event(
+            "nids_start_failed",
+            {"error": str(e)},
+            get_client_ip(request_obj)
+        )
         raise HTTPException(status_code=500, detail=f"Failed to start sniffer: {str(e)}")
 
 @router.post("/stop-sniffer", response_model=Dict[str, Any])
+@limiter.limit("10/minute")
 async def stop_sniffer(
+    request_obj: Request,
     request: StopSnifferRequest,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Stop packet sniffing and NIDS monitoring"""
     try:
@@ -83,22 +133,35 @@ async def get_status(
         raise HTTPException(status_code=500, detail=f"Failed to get system status: {str(e)}")
 
 @router.get("/alerts", response_model=AlertResponse)
+@limiter.limit("100/minute")
 async def get_alerts(
+    request_obj: Request,
     limit: int = Query(100, ge=1, le=1000, description="Number of alerts to return"),
     severity: Optional[str] = Query(None, description="Filter by alert severity"),
     detection_type: Optional[str] = Query(None, description="Filter by detection type"),
     source_ip: Optional[str] = Query(None, description="Filter by source IP"),
     resolved: Optional[bool] = Query(None, description="Filter by resolution status"),
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get alerts with optional filtering"""
     try:
+        # Log API access
+        await log_api_access(request_obj, "get-alerts", token)
+        
+        # Validate inputs
+        if severity and not input_validator.validate_severity(severity):
+            raise HTTPException(status_code=400, detail="Invalid severity level")
+        
+        if source_ip and not input_validator.validate_ip_address(source_ip):
+            raise HTTPException(status_code=400, detail="Invalid IP address format")
+        
         # Build filters
         filters = {}
         if severity:
             filters['severity'] = severity
         if detection_type:
-            filters['detection_type'] = detection_type
+            filters['detection_type'] = input_validator.sanitize_string(detection_type, 50)
         if source_ip:
             filters['source_ip'] = source_ip
         if resolved is not None:

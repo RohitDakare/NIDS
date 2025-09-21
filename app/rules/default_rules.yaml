@@ -1,51 +1,62 @@
-- description: Detects multiple failed SSH login attempts
-  enabled: true
-  last_match: null
-  matches_count: 0
-  metadata:
-    mitre_technique: T1110.001
-  name: SSH Brute Force
-  pattern: '22'
+- id: SIG-001
   rule_id: SIG-001
+  name: SSH Brute Force
+  description: Detects multiple failed SSH login attempts
+  pattern: '22'
   severity: high
+  enabled: true
   tags:
   - brute_force
   - ssh
-- description: Detects port scanning activity
-  enabled: true
+  metadata:
+    mitre_technique: T1110.001
   last_match: null
   matches_count: 0
-  metadata:
-    mitre_technique: T1046
-  name: Port Scan
-  pattern: port_scan
+
+- id: SIG-002
   rule_id: SIG-002
+  name: Port Scan
+  description: Detects port scanning activity
+  pattern: port_scan
   severity: medium
+  enabled: true
   tags:
   - scan
   - reconnaissance
-- description: Detects potential DDoS attack patterns
-  enabled: true
+  metadata:
+    mitre_technique: T1046
   last_match: null
   matches_count: 0
-  metadata:
-    mitre_technique: T1498
-  name: DDoS Attack
-  pattern: ddos
+
+- id: SIG-003
   rule_id: SIG-003
-  severity: critical
+  name: DDoS Attack
+  description: Detects potential DDoS attack patterns
+  pattern: ddos_pattern
+  severity: high
+  enabled: true
   tags:
   - ddos
-  - dos
-- description: Detects SQL injection attempts
-  enabled: true
+  - attack
+  metadata:
+    mitre_technique: T1498
   last_match: null
   matches_count: 0
+
+- id: SIG-004
+  rule_id: SIG-004
+  name: SQL Injection
+  description: Detects SQL injection attempts
+  pattern: (?i)(?:union\s+select|select\s+.*\s+from|insert\s+into|update\s+.*\s+set|delete\s+from)
+  severity: high
+  enabled: true
+  tags:
+  - injection
+  - web
   metadata:
     mitre_technique: T1190
-  name: SQL Injection
-  pattern: (?i)(?:union\s+select|select\s+.*\s+from|insert\s+into|update\s+.*\s+set|delete\s+from)
-  rule_id: SIG-004
+  last_match: null
+  matches_count: 0
   severity: high
   tags:
   - web
