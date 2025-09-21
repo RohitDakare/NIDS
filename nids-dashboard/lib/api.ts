@@ -89,4 +89,35 @@ export async function disableSignatureRule(ruleId: string) {
   const res = await fetch(`${API_BASE_URL}/signature-rules/${ruleId}/disable`, { method: "POST" });
   if (!res.ok) throw new Error("Failed to disable signature rule");
   return res.json();
-} 
+}
+
+// Settings and control helpers
+export async function startSnifferWithConfig(config?: any) {
+  // Alias to startSniffer for clarity
+  return startSniffer(config);
+}
+
+export async function stopSnifferApi() {
+  // Alias to stopSniffer for clarity
+  return stopSniffer();
+}
+
+export async function updateSnifferConfig(config: any) {
+  const res = await fetch(`${API_BASE_URL}/config/sniffer`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(config),
+  });
+  if (!res.ok) throw new Error("Failed to update sniffer config");
+  return res.json();
+}
+
+export async function updateMLConfig(config: any) {
+  const res = await fetch(`${API_BASE_URL}/config/ml`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(config),
+  });
+  if (!res.ok) throw new Error("Failed to update ML config");
+  return res.json();
+}

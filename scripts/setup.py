@@ -69,7 +69,7 @@ def install_dependencies():
     # Determine the pip command based on OS
     if os.name == 'nt':  # Windows
         pip_cmd = "venv\\Scripts\\pip"
-        requirements_file = "requirements-windows.txt"
+        requirements_file = "config/requirements-windows.txt"
     else:  # Unix/Linux/Mac
         pip_cmd = "venv/bin/pip"
         requirements_file = "requirements.txt"
@@ -142,8 +142,9 @@ TIMEOUT=30
 MODEL_PATH=app/ml_models/nids_model.joblib
 CONFIDENCE_THRESHOLD=0.8
 
-# Database Configuration
-DATABASE_URL=sqlite:///./data/nids.db
+# MongoDB Database Configuration
+MONGODB_URL=mongodb://localhost:27017
+MONGODB_DB_NAME=nids
 
 # Logging Configuration
 LOG_LEVEL=INFO

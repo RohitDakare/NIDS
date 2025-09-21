@@ -732,3 +732,82 @@ To install, run: pip install email-validator
 2025-09-08 08:01:34,621 - app.core.nids_orchestrator - INFO - NIDS system started successfully
 2025-09-08 08:01:55,843 - app.core.packet_sniffer - WARNING - Packet sniffer is not running
 2025-09-08 08:01:55,844 - app.core.nids_orchestrator - INFO - NIDS system stopped successfully
+2025-09-20 01:52:35,865 - app.utils.config - INFO - Configuration validation passed
+2025-09-20 01:52:35,874 - __main__ - INFO - Environment validation completed
+2025-09-20 01:52:35,874 - __main__ - INFO - Starting NIDS with configuration:
+2025-09-20 01:52:35,874 - __main__ - INFO -   Network Interface: Wi-Fi
+2025-09-20 01:52:35,874 - __main__ - INFO -   API Host: 0.0.0.0
+2025-09-20 01:52:35,875 - __main__ - INFO -   API Port: 8000
+2025-09-20 01:52:35,875 - __main__ - INFO -   ML Model: app/ml_models/nids_model.joblib
+2025-09-20 01:52:35,875 - __main__ - INFO -   Confidence Threshold: 0.8
+2025-09-20 01:52:35,875 - __main__ - INFO - Starting NIDS application...
+2025-09-20 01:52:38,735 - app.main - INFO - Starting NIDS application...
+2025-09-20 01:52:38,736 - app.main - ERROR - Failed to initialize NIDS system: 'MLModelConfig' object has no attribute 'get'
+2025-09-20 01:53:38,324 - app.main - INFO - Starting NIDS application...
+2025-09-20 01:53:38,325 - app.core.signature_detector - WARNING - Rules directory app/rules created
+2025-09-20 01:53:38,331 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-20 01:53:38,331 - app.main - INFO - NIDS system initialized successfully
+2025-09-20 01:54:06,979 - app.main - INFO - Shutting down NIDS application...
+2025-09-20 01:54:06,980 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-09-20 01:54:06,980 - app.main - INFO - NIDS system stopped successfully
+2025-09-20 01:54:10,169 - app.main - INFO - Starting NIDS application...
+2025-09-20 01:54:10,178 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,178 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,178 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,179 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,179 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,179 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,179 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,179 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,180 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,180 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 01:54:10,180 - app.core.signature_detector - WARNING - No rules found, creating default rules
+2025-09-20 01:54:10,188 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-20 01:54:10,188 - app.main - INFO - NIDS system initialized successfully
+2025-09-20 08:28:01,307 - app.main - INFO - Starting NIDS application...
+2025-09-20 08:28:01,313 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,314 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,314 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,314 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,315 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,315 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,315 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,315 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,316 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,316 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-20 08:28:01,317 - app.core.signature_detector - WARNING - No rules found, creating default rules
+2025-09-20 08:28:01,323 - app.core.packet_sniffer - INFO - Started packet sniffing on interface Wi-Fi
+2025-09-20 08:28:01,323 - app.main - INFO - NIDS system initialized successfully
+2025-09-21 09:37:41,761 - app.main - INFO - Starting NIDS application...
+2025-09-21 09:37:41,770 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,770 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,771 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,771 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,771 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,771 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,772 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,772 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,772 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,772 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 09:37:41,772 - app.core.signature_detector - WARNING - No rules found, creating default rules
+2025-09-21 09:37:41,781 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-09-21 09:37:41,782 - app.main - INFO - NIDS system initialized successfully
+2025-09-21 09:37:41,782 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Error opening adapter: The filename, directory name, or volume label syntax is incorrect.  (123)
+2025-09-21 10:02:24,805 - app.main - INFO - Starting NIDS application...
+2025-09-21 10:02:24,849 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,851 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,851 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,852 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,852 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,852 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,853 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,853 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,853 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,854 - app.core.signature_detector - ERROR - Invalid rule format in app/rules\default_rules.yaml: missing field 'id'
+2025-09-21 10:02:24,854 - app.core.signature_detector - WARNING - No rules found, creating default rules
+2025-09-21 10:02:24,863 - app.core.packet_sniffer - INFO - Started packet sniffing on interface eth0
+2025-09-21 10:02:24,864 - app.main - INFO - NIDS system initialized successfully
+2025-09-21 10:02:24,865 - app.core.packet_sniffer - ERROR - Error during packet sniffing: Error opening adapter: The filename, directory name, or volume label syntax is incorrect.  (123)
+2025-09-21 10:26:30,525 - app.main - INFO - Shutting down NIDS application...
+2025-09-21 10:26:30,532 - app.core.nids_orchestrator - WARNING - NIDS system is not running
+2025-09-21 10:26:30,532 - app.main - INFO - NIDS system stopped successfully

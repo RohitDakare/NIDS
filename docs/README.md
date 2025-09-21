@@ -9,7 +9,7 @@ A comprehensive Python-based backend for a hybrid Network Intrusion Detection Sy
 - **Signature-Based Detection**: Rule-based pattern matching for known attacks
 - **RESTful API**: FastAPI-based interface for system control and monitoring
 - **Alerting & Logging**: Comprehensive logging and alert generation
-- **Database Storage**: SQLite-based storage for alerts and packet data
+- **Database Storage**: MongoDB-based storage for alerts and packet data
 
 ## 🏗️ Architecture
 
@@ -53,43 +53,48 @@ The setup script will:
 - Install all dependencies
 - Create necessary directories
 - Generate configuration files
-- Check network interfaces
-- Run basic tests
-- Create startup scripts
 
-### 2. Manual Installation
+### 2. Manual Setup
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd NIDS
 
-# Create virtual environment
+# Set up the environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Create necessary directories
-mkdir -p models data logs
-
-# Copy configuration template
-cp env.example .env
+# Configure the system
+cp config/env.example .env
+# Edit .env file with your configuration
 ```
 
-### 3. Configuration
+### 3. Train ML Models (Optional)
 
-Edit the `.env` file to configure the system:
+```bash
+# Quick training with synthetic data
+python scripts/train_models.py --synthetic --quick
 
-```env
-# Network Interface (use 'lo' for loopback testing)
-INTERFACE=eth0
+# Or launch training dashboard
+python scripts/train_models.py --dashboard
 
-# ML Model Settings
-MODEL_PATH=models/nids_model.joblib
-CONFIDENCE_THRESHOLD=0.8
+# For detailed training guide, see docs/ML_TRAINING_GUIDE.md
+```
 
+### 4. Run the application
+
+```bash
+python -m app.main
+```
+
+### 5. Access the interfaces
+
+- **API Documentation**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/api/v1/health
+- **Frontend Dashboard**: http://localhost:3000 (if running Next.js frontend)
+- **ML Training Dashboard**: http://localhost:8001 (if launched)
 # API Configuration
 API_HOST=0.0.0.0
 API_PORT=8000
@@ -161,8 +166,9 @@ PACKET_COUNT=1000
 MODEL_PATH=models/nids_model.joblib
 CONFIDENCE_THRESHOLD=0.8
 
-# Database
-DATABASE_URL=sqlite:///./data/nids.db
+# MongoDB Database Configuration
+MONGODB_URL=mongodb://localhost:27017
+MONGODB_DB_NAME=nids
 
 # Logging
 LOG_LEVEL=INFO

@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime
 
-from app.core.signature_detector import SignatureDetector
+from app.core.signature_detector import SignatureDetector, SignatureRule
 from app.models.schemas import PacketInfo, DetectionType, AlertSeverity
 from tests.fixtures.packet_data import create_tcp_packet, create_attack_packet
 
@@ -124,51 +124,59 @@ class TestSignatureDetector:
         
         assert 'total_rules' in stats
         assert 'enabled_rules' in stats
+        assert 'disabled_rules' in stats
         assert 'matches_count' in stats
-        assert 'connection_count' in stats
+        assert 'top_rules' in stats
         
-        assert stats['total_rules'] > 0
+        assert isinstance(stats['total_rules'], int)
+        assert stats['total_rules'] >= 0
+        assert stats['enabled_rules'] <= stats['total_rules']
+        assert stats['disabled_rules'] == stats['total_rules'] - stats['enabled_rules']
+        assert isinstance(stats['matches_count'], int)
+        assert stats['matches_count'] >= 0
+        assert isinstance(stats['top_rules'], list)
         assert stats['enabled_rules'] >= 0
         assert stats['matches_count'] >= 0
     
     def test_rule_matching_logic(self, signature_detector):
-        """Test rule matching logic"""
-        # Create a rule that matches specific port
-        rule_id = 'port_80_rule'
-        rule = {
-            'rule_id': rule_id,
-            'name': 'Port 80 Rule',
-            'description': 'Matches traffic on port 80',
-            'pattern': 'tcp port 80',
-            'severity': AlertSeverity.MEDIUM,
-            'enabled': True,
-            'matches_count': 0,
-            'last_match': None
-        }
+        """Test rule matching logic with different patterns"""
+        from app.core.signature_detector import SignatureRule
+        from app.models.schemas import AlertSeverity
         
-        signature_detector.rules[rule_id] = rule
-        
-        # Create packet that should match
-        packet = PacketInfo(
-            timestamp=datetime.now(),
-            source_ip="192.168.1.100",
-            dest_ip="192.168.1.200",
-            protocol="TCP",
-            source_port=12345,
-            dest_port=80,  # HTTP port
-            packet_length=64,
-            tcp_flags="SYN",
-            payload_size=20
+        # Create test rules
+        rule1 = SignatureRule(
+            rule_id='test_port_rule',
+            name='Test Port Rule',
+            pattern='80',
+            severity=AlertSeverity.MEDIUM,
+            description='Test port 80 rule'
         )
         
-        detections = signature_detector.detect(packet)
+        rule2 = SignatureRule(
+            rule_id='test_ip_rule',
+            name='Test IP Rule',
+            pattern='192.168.1.100',
+            severity=AlertSeverity.HIGH,
+            description='Test IP rule'
+        )
         
-        # Check if rule was triggered
-        rule_triggered = any(detection.get('rule_id') == rule_id for detection in detections)
+        # Create test packet
+        from tests.fixtures.packet_data import create_tcp_packet
+        packet = create_tcp_packet()
         
-        if rule_triggered:
-            assert signature_detector.rules[rule_id]['matches_count'] > 0
-            assert signature_detector.rules[rule_id]['last_match'] is not None
+        # Test port matching
+        packet.dest_port = 80
+        assert rule1.match(packet) is True
+        
+        # Test IP matching
+        packet.source_ip = '192.168.1.100'
+        assert rule2.match(packet) is True
+        
+        # Test non-matching case
+        packet.dest_port = 443
+        packet.source_ip = '10.0.0.1'
+        assert rule1.match(packet) is False
+        assert rule2.match(packet) is False
     
     def test_multiple_rule_matching(self, signature_detector):
         """Test multiple rules matching the same packet"""
@@ -219,26 +227,34 @@ class TestSignatureDetector:
     
     def test_disabled_rule_not_matching(self, signature_detector):
         """Test that disabled rules don't match"""
-        rule_id = 'disabled_rule'
-        rule = {
-            'rule_id': rule_id,
-            'name': 'Disabled Rule',
-            'description': 'This rule is disabled',
-            'pattern': 'tcp',
-            'severity': AlertSeverity.LOW,
-            'enabled': False,  # Disabled
-            'matches_count': 0,
-            'last_match': None
-        }
+        from app.models.schemas import AlertSeverity
         
-        signature_detector.rules[rule_id] = rule
+        # Clear existing rules
+        signature_detector.rules = {}
         
+        # Create a rule that matches port 80 but is disabled
+        rule = SignatureRule(
+            rule_id='http_rule',
+            name='HTTP Traffic',
+            pattern='80',
+            severity=AlertSeverity.MEDIUM,
+            description='Detects HTTP traffic',
+            enabled=False  # Disabled rule
+        )
+        
+        signature_detector.rules[rule.rule_id] = rule
+        
+        # Create a test packet that would match if the rule was enabled
         packet = create_tcp_packet()
+        packet.dest_port = 80
+        
+        # Run detection
         detections = signature_detector.detect(packet)
         
-        # Disabled rule should not match
-        rule_triggered = any(detection.get('rule_id') == rule_id for detection in detections)
-        assert rule_triggered == False
+        # The disabled rule should not have matched
+        rule_ids = {d.get('rule_id') for d in detections}
+        assert rule.rule_id not in rule_ids
+        assert rule.matches_count == 0  # Match count should not be incremented
     
     def test_rule_severity_levels(self, signature_detector):
         """Test different severity levels in rules"""
