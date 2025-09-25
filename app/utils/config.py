@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -29,6 +29,16 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = Field(default="*", description="CORS allowed origins")
     API_KEY: Optional[str] = Field(default=None, description="API key for authentication")
     
+    # Advanced Security Settings
+    JWT_SECRET: Optional[str] = Field(default=None, description="JWT secret key")
+    ENCRYPTION_KEY: Optional[str] = Field(default=None, description="Data encryption key")
+    ENABLE_AUDIT_LOG: bool = Field(default=False, description="Enable audit logging")
+    ENABLE_RATE_LIMITING: bool = Field(default=False, description="Enable rate limiting")
+    ENABLE_API_AUTH: bool = Field(default=False, description="Enable API authentication")
+    ENABLE_HTTPS: bool = Field(default=False, description="Enable HTTPS")
+    SSL_CERT_PATH: Optional[str] = Field(default=None, description="SSL certificate path")
+    SSL_KEY_PATH: Optional[str] = Field(default=None, description="SSL key path")
+    
     # Logging Configuration
     LOG_LEVEL: str = Field(default="INFO", description="Logging level")
     LOG_FILE: str = Field(default="logs/nids.log", description="Log file path")
@@ -43,10 +53,9 @@ class Settings(BaseSettings):
     RATE_LIMIT_BYTES_PER_SECOND: int = Field(default=1000000, description="Byte rate limit")
     CORRELATION_WINDOW_MINUTES: int = Field(default=5, description="Alert correlation window")
     
-    model_config = {
-        "env_file": ".env",
-        "case_sensitive": True
-    }
+    class Config:
+        case_sensitive = True
+        extra = "allow"  # Allow extra environment variables
 
 
 # Global settings instance
@@ -63,11 +72,22 @@ def validate_settings() -> bool:
     try:
         # Check if required directories exist
         os.makedirs(os.path.dirname(settings.LOG_FILE), exist_ok=True)
-        os.makedirs(os.path.dirname(settings.MODEL_PATH), exist_ok=True)
+        
+        # Get the absolute path to the model file
+        model_path = os.path.join(os.path.dirname(__file__), "..", settings.MODEL_PATH)
+        model_path = os.path.abspath(model_path)
         
         # Validate ML model path
-        if not os.path.exists(settings.MODEL_PATH):
-            print(f"Warning: ML model not found at {settings.MODEL_PATH}")
+        if not os.path.exists(model_path):
+            print(f"Warning: ML model not found at {model_path}")
+            print(f"Expected path: {settings.MODEL_PATH}")
+            print(f"Absolute path: {model_path}")
+            print("Available models in ml_models directory:")
+            ml_dir = os.path.join(os.path.dirname(__file__), "..", "ml_models")
+            if os.path.exists(ml_dir):
+                models = os.listdir(ml_dir)
+                for model in models:
+                    print(f"  - {model}")
             return False
             
         # Validate confidence threshold
@@ -80,6 +100,73 @@ def validate_settings() -> bool:
     except Exception as e:
         print(f"Error validating settings: {e}")
         return False
+
+
+# Legacy Config class for backward compatibility
+class Config:
+    """Legacy Config class for backward compatibility with run.py"""
+    
+    # Class attributes that map to settings
+    LOG_LEVEL = settings.LOG_LEVEL
+    LOG_FILE = settings.LOG_FILE
+    API_HOST = settings.API_HOST
+    API_PORT = settings.API_PORT
+    API_RELOAD = settings.API_RELOAD
+    INTERFACE = settings.INTERFACE
+    
+    @classmethod
+    def validate_config(cls):
+        """Validate configuration"""
+        return validate_settings()
+    
+    @classmethod
+    def create_directories(cls):
+        """Create necessary directories"""
+        try:
+            os.makedirs(os.path.dirname(cls.LOG_FILE), exist_ok=True)
+            os.makedirs("data", exist_ok=True)
+            os.makedirs("models", exist_ok=True)
+            return True
+        except Exception as e:
+            print(f"Error creating directories: {e}")
+            return False
+    
+    @classmethod
+    def is_valid_interface(cls, interface):
+        """Check if network interface is valid"""
+        try:
+            import netifaces
+            interfaces = netifaces.interfaces()
+            return interface in interfaces
+        except:
+            # If netifaces not available, assume valid
+            return True
+    
+    @classmethod
+    def get_network_interfaces(cls):
+        """Get available network interfaces"""
+        try:
+            import netifaces
+            return netifaces.interfaces()
+        except:
+            return ["eth0", "wlan0", "lo"]
+    
+    @classmethod
+    def get_all_config(cls):
+        """Get all configuration as dict"""
+        return {
+            "network": {
+                "interface": cls.INTERFACE,
+            },
+            "api": {
+                "host": cls.API_HOST,
+                "port": cls.API_PORT,
+            },
+            "ml_model": {
+                "model_path": settings.MODEL_PATH,
+                "confidence_threshold": settings.CONFIDENCE_THRESHOLD,
+            }
+        }
 
 
 if __name__ == "__main__":

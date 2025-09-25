@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,16 @@ import { useNIDSData } from '@/lib/hooks/useNIDSData';
 
 export default function DashboardPage() {
   const { alerts, trafficData, metrics, isLoading, error } = useNIDSData();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Handle URL tab parameter
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['overview', 'alerts', 'traffic', 'detection', 'system', 'settings'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   // Adapt basic traffic data to the schema expected by TrafficStats
   const trafficDataEnriched = trafficData.map(t => ({

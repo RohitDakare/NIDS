@@ -49,24 +49,24 @@ async def log_api_access(request: Request, endpoint: str, user_token: str = None
 @router.post("/start-sniffer", response_model=Dict[str, Any])
 @limiter.limit("10/minute")
 async def start_sniffer(
-    request_obj: Request,
-    request: StartSnifferRequest,
+    request: Request,
+    request_data: StartSnifferRequest,
     orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
     token: str = Depends(verify_api_key)
 ):
     """Start packet sniffing and NIDS monitoring"""
     try:
         # Log API access
-        await log_api_access(request_obj, "start-sniffer", token)
+        await log_api_access(request, "start-sniffer", token)
         
         # Validate configuration if provided
-        if request.config:
+        if request_data.config:
             # Validate interface name
-            if hasattr(request.config, 'interface') and request.config.interface:
-                if not input_validator.validate_interface_name(request.config.interface):
+            if hasattr(request_data.config, 'interface') and request_data.config.interface:
+                if not input_validator.validate_interface_name(request_data.config.interface):
                     raise HTTPException(status_code=400, detail="Invalid interface name")
             
-            success = orchestrator.update_sniffer_config(request.config)
+            success = orchestrator.update_sniffer_config(request_data.config)
             if not success:
                 raise HTTPException(status_code=500, detail="Failed to update sniffer configuration")
         
@@ -78,8 +78,8 @@ async def start_sniffer(
         # Log security event
         security_manager.log_security_event(
             "nids_started",
-            {"interface": getattr(request.config, 'interface', 'default') if request.config else 'default'},
-            get_client_ip(request_obj)
+            {"interface": getattr(request_data.config, 'interface', 'default') if request_data.config else 'default'},
+            get_client_ip(request)
         )
         
         return {
@@ -93,15 +93,15 @@ async def start_sniffer(
         security_manager.log_security_event(
             "nids_start_failed",
             {"error": str(e)},
-            get_client_ip(request_obj)
+            get_client_ip(request)
         )
         raise HTTPException(status_code=500, detail=f"Failed to start sniffer: {str(e)}")
 
 @router.post("/stop-sniffer", response_model=Dict[str, Any])
 @limiter.limit("10/minute")
 async def stop_sniffer(
-    request_obj: Request,
-    request: StopSnifferRequest,
+    request: Request,
+    request_data: StopSnifferRequest,
     orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
     token: str = Depends(verify_api_key)
 ):
@@ -135,7 +135,7 @@ async def get_status(
 @router.get("/alerts", response_model=AlertResponse)
 @limiter.limit("100/minute")
 async def get_alerts(
-    request_obj: Request,
+    request: Request,
     limit: int = Query(100, ge=1, le=1000, description="Number of alerts to return"),
     severity: Optional[str] = Query(None, description="Filter by alert severity"),
     detection_type: Optional[str] = Query(None, description="Filter by detection type"),
@@ -147,7 +147,7 @@ async def get_alerts(
     """Get alerts with optional filtering"""
     try:
         # Log API access
-        await log_api_access(request_obj, "get-alerts", token)
+        await log_api_access(request, "get-alerts", token)
         
         # Validate inputs
         if severity and not input_validator.validate_severity(severity):
@@ -294,9 +294,22 @@ async def get_correlation_analysis(
 async def get_signature_rules(
     orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
 ):
-    """Get signature rule statistics"""
+    """Get signature rules list"""
     try:
-        rules = orchestrator.get_signature_rule_stats()
+        rules = []
+        for rule in orchestrator.signature_detector.rules.values():
+            rules.append({
+                'id': rule.rule_id,
+                'name': rule.name,
+                'description': rule.description,
+                'severity': rule.severity.value,
+                'enabled': rule.enabled,
+                'pattern': rule.pattern,
+                'tags': rule.tags,
+                'matches_count': rule.matches_count,
+                'last_match': rule.last_match.isoformat() if rule.last_match else None,
+                'metadata': rule.metadata
+            })
         return rules
         
     except Exception as e:

@@ -1,62 +1,51 @@
-- id: SIG-001
-  rule_id: SIG-001
-  name: SSH Brute Force
-  description: Detects multiple failed SSH login attempts
-  pattern: '22'
-  severity: high
+- description: Detects multiple failed SSH login attempts
   enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1110.001
+  name: SSH Brute Force
+  pattern: '22'
+  id: SIG-001
+  severity: high
   tags:
   - brute_force
   - ssh
-  metadata:
-    mitre_technique: T1110.001
+- description: Detects port scanning activity
+  enabled: true
   last_match: null
   matches_count: 0
-
-- id: SIG-002
-  rule_id: SIG-002
+  metadata:
+    mitre_technique: T1046
   name: Port Scan
-  description: Detects port scanning activity
   pattern: port_scan
+  id: SIG-002
   severity: medium
-  enabled: true
   tags:
   - scan
   - reconnaissance
-  metadata:
-    mitre_technique: T1046
+- description: Detects potential DDoS attack patterns
+  enabled: true
   last_match: null
   matches_count: 0
-
-- id: SIG-003
-  rule_id: SIG-003
-  name: DDoS Attack
-  description: Detects potential DDoS attack patterns
-  pattern: ddos_pattern
-  severity: high
-  enabled: true
-  tags:
-  - ddos
-  - attack
   metadata:
     mitre_technique: T1498
+  name: DDoS Attack
+  pattern: ddos
+  id: SIG-003
+  severity: critical
+  tags:
+  - ddos
+  - dos
+- description: Detects SQL injection attempts
+  enabled: true
   last_match: null
   matches_count: 0
-
-- id: SIG-004
-  rule_id: SIG-004
-  name: SQL Injection
-  description: Detects SQL injection attempts
-  pattern: (?i)(?:union\s+select|select\s+.*\s+from|insert\s+into|update\s+.*\s+set|delete\s+from)
-  severity: high
-  enabled: true
-  tags:
-  - injection
-  - web
   metadata:
     mitre_technique: T1190
-  last_match: null
-  matches_count: 0
+  name: SQL Injection
+  pattern: (?i)(?:union\s+select|select\s+.*\s+from|insert\s+into|update\s+.*\s+set|delete\s+from)
+  id: SIG-004
   severity: high
   tags:
   - web
@@ -69,7 +58,7 @@
     mitre_technique: T1059.007
   name: XSS Attack
   pattern: (?i)(?:<script[^>]*>.*</script>|javascript:)
-  rule_id: SIG-005
+  id: SIG-005
   severity: high
   tags:
   - web
@@ -82,7 +71,7 @@
     mitre_technique: T1040
   name: Suspicious HTTP User Agent
   pattern: (?i)(nmap|nikto|sqlmap|wget|curl|python-requests|hydra|metasploit|nessus|openvas)
-  rule_id: SIG-006
+  id: SIG-006
   severity: medium
   tags:
   - web
@@ -95,7 +84,7 @@
     mitre_technique: T1071.004
   name: Suspicious DNS Query
   pattern: (?i)(?:dns-tunneling|tunnel|exfil|malware|command-and-control|cnc|c2)
-  rule_id: SIG-007
+  id: SIG-007
   severity: medium
   tags:
   - dns
@@ -108,7 +97,7 @@
     mitre_technique: T1589.001
   name: Suspicious IP Address
   pattern: suspicious_ip
-  rule_id: SIG-008
+  id: SIG-008
   severity: low
   tags:
   - reputation
@@ -121,7 +110,7 @@
     mitre_technique: T1572
   name: ICMP Tunnel
   pattern: ICMP
-  rule_id: SIG-009
+  id: SIG-009
   severity: high
   tags:
   - tunnel
@@ -134,7 +123,7 @@
     mitre_technique: T1020
   name: Data Exfiltration
   pattern: (?i)(?:passwd|shadow|confidential|secret|token|api[_-]?key)
-  rule_id: SIG-010
+  id: SIG-010
   severity: critical
   tags:
   - exfiltration

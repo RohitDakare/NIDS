@@ -236,6 +236,11 @@ async def health(request: Request):
         "version": "1.0.0"
     }
 
+# Handle Chrome DevTools well-known probe to avoid 404 noise
+@app.get("/.well-known/appspecific/com.chrome.devtools.json")
+async def chrome_devtools_probe():
+    return {}
+
 @app.get("/api/v1/status", tags=["System"])
 @limiter.limit("100/minute")
 async def get_status(request: Request):
@@ -254,7 +259,14 @@ async def get_status(request: Request):
 async def start_sniffer(request: Request):
     """Start the packet sniffer"""
     if nids_state["sniffer_active"]:
-        raise HTTPException(status_code=400, detail="Sniffer is already active")
+        # Idempotent response instead of 400 to avoid frontend errors
+        mode = "real_capture" if nids_orchestrator else "simulation"
+        logger.info("Start sniffer called but already active; returning current state")
+        return {
+            "message": "Sniffer is already active",
+            "status": "active",
+            "mode": mode
+        }
     
     # Parse request body if present
     try:
