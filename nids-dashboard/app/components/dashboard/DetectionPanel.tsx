@@ -21,7 +21,7 @@ export function DetectionPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mlStats, setMlStats] = useState<any>({});
-  const [sigStats, setSigStats] = useState<{ enabled_rules?: RuleStat[]; total_rules?: number }>({});
+  const [sigStats, setSigStats] = useState<{ enabled_rules?: RuleStat[]; total_rules?: number; top_rules?: any[] }>({});
   const [detectionRates, setDetectionRates] = useState<any>({});
 
   const load = async () => {
@@ -75,12 +75,12 @@ export function DetectionPanel() {
             <CardContent>
               <div className="text-2xl font-bold">{
                 (() => {
-                  const rules = sigStats?.enabled_rules ?? [];
-                  const sum = rules.reduce((s: number, r: any) => s + (r?.matches ?? 0), 0);
+                  const rules = Array.isArray(sigStats?.top_rules) ? sigStats.top_rules : [];
+                  const sum = rules.reduce((s: number, r: any) => s + (r?.matches ?? r?.matches_count ?? 0), 0);
                   return sum;
                 })()
               }</div>
-              <p className="text-xs text-muted-foreground">Enabled rules: {sigStats?.enabled_rules?.length ?? 0} / {sigStats?.total_rules ?? "-"}</p>
+              <p className="text-xs text-muted-foreground">Enabled rules: {sigStats?.enabled_rules ?? 0} / {sigStats?.total_rules ?? "-"}</p>
             </CardContent>
           </Card>
 

@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import pymongo
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, AuthenticationFailed, ServerSelectionTimeoutError
+from pymongo.errors import ConnectionFailure, OperationFailure, ServerSelectionTimeoutError
 import ssl
 from urllib.parse import quote_plus
 
@@ -91,8 +91,8 @@ class SecureMongoManager:
             logger.info("Secure MongoDB connection established")
             return True
             
-        except AuthenticationFailed as e:
-            logger.error(f"MongoDB authentication failed: {e}")
+        except OperationFailure as e:
+            logger.error(f"MongoDB operation/authentication failed: {e}")
             security_manager.log_security_event(
                 "database_auth_failed",
                 {"error": "Authentication failed", "database": self.db_name},
