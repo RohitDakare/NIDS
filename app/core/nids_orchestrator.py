@@ -10,6 +10,7 @@ from app.core.packet_sniffer import PacketSniffer
 from app.core.ml_detector import MLDetector
 from app.core.signature_detector import SignatureDetector
 from app.core.alert_manager import AlertManager
+from app.db.secure_mongodb import secure_mongo
 from app.models.schemas import (
     PacketInfo, SnifferConfig, MLModelConfig, 
     SystemStatus, DetectionType, Alert
@@ -33,7 +34,13 @@ class NIDSOrchestrator:
         self.packet_sniffer = PacketSniffer(sniffer_config)
         self.ml_detector = MLDetector(ml_config)
         self.signature_detector = SignatureDetector()
-        self.alert_manager = AlertManager(alert_callback=alert_callback)
+        # Ensure DB connection
+        try:
+            if secure_mongo.connect():
+                secure_mongo.create_indexes()
+        except Exception:
+            logger.warning("Proceeding without MongoDB persistence")
+        self.alert_manager = AlertManager(alert_callback=alert_callback, db_manager=secure_mongo)
         
         # System state
         self.is_running = False

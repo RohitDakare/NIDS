@@ -124,16 +124,19 @@ app = FastAPI(
 # Add security middleware
 app.add_middleware(SecurityMiddleware)
 
-# Add trusted host middleware
-allowed_hosts = os.getenv("CORS_ORIGINS", "localhost,127.0.0.1").split(",")
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+def _split_env_list(value: str, default: list[str]) -> list[str]:
+    if not value:
+        return default
+    return [item.strip() for item in value.split(',') if item.strip()]
 
-# In app/main.py, update the CORS middleware to include your frontend's IP:
-cors_origins = [
-    "http://localhost:3000",
-    "http://192.168.126.1:3000",  # Add this line with your frontend's actual IP
-    "http://127.0.0.1:3000"
-]
+# Trusted hosts from env (CSV). Default to localhost only in production-safe way
+trusted_hosts_env = os.getenv("TRUSTED_HOSTS", "localhost,127.0.0.1")
+trusted_hosts = _split_env_list(trusted_hosts_env, ["localhost", "127.0.0.1"])
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
+
+# CORS allowed origins from env (CSV). Defaults include local dev hosts
+cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+cors_origins = _split_env_list(cors_origins_env, ["http://localhost:3000", "http://127.0.0.1:3000"])
 
 app.add_middleware(
     CORSMiddleware,

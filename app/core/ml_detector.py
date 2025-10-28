@@ -68,8 +68,8 @@ class MLDetector:
     
     def _init_model(self):
         """Initialize the ML model based on configuration."""
-        # Default to random_forest since MLModelConfig doesn't have model_type
-        model_type = 'random_forest'
+        # Use configured model_type
+        model_type = getattr(self.config, 'model_type', 'random_forest') or 'random_forest'
         
         if model_type == 'random_forest':
             self.model = RandomForestClassifier(

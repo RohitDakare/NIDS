@@ -308,8 +308,20 @@ npm run lint
 ### Docker Deployment (Recommended)
 
 ```bash
-# Build and run with Docker Compose
-docker-compose up -d
+# Build and run backend + frontend + MongoDB
+docker compose up -d --build
+
+# Set environment (production example)
+# Create a .env file with:
+# MONGODB_USERNAME=nids_user
+# MONGODB_PASSWORD=strong-password
+# API_KEY=prod-api-key
+# CORS_ORIGINS=https://your-frontend-domain
+# TRUSTED_HOSTS=your-backend-domain
+
+# Access services
+# API: http://localhost:8000
+# Frontend: http://localhost:3000
 ```
 
 ### Manual Deployment

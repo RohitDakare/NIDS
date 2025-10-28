@@ -51,6 +51,7 @@ class MLModelConfig(BaseModel):
     """ML model configuration"""
     model_path: str = Field(default="app/ml_models/nids_model.joblib")
     confidence_threshold: float = Field(default=0.8, ge=0.0, le=1.0)
+    model_type: str = Field(default="random_forest", description="Model type: random_forest | isolation_forest | gradient_boosting")
     feature_columns: List[str] = Field(default_factory=list)
 
 class SystemStatus(BaseModel):

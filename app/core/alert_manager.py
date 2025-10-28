@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 class AlertManager:
     """Manages alerts from ML and signature-based detections"""
     
-    def __init__(self, max_alerts: int = 10000, alert_callback: Optional[Callable] = None):
+    def __init__(self, max_alerts: int = 10000, alert_callback: Optional[Callable] = None, db_manager: Optional[Any] = None):
         self.max_alerts = max_alerts
         self.alert_callback = alert_callback
+        self.db_manager = db_manager
         self.alerts: deque = deque(maxlen=max_alerts)
         self.alert_id_counter = 0
         self.alerts_by_severity = {
@@ -83,8 +84,27 @@ class AlertManager:
                 logger.debug(f"Suppressed alert: {alert.description}")
                 return None
             
-            # Add to alert storage
+            # Add to alert storage (in-memory)
             self.alerts.append(alert)
+
+            # Persist to database if available
+            try:
+                if self.db_manager and getattr(self.db_manager, 'db', None):
+                    self.db_manager.insert_alert({
+                        'id': alert.id,
+                        'timestamp': alert.timestamp,
+                        'severity': alert.severity.value,
+                        'detection_type': alert.detection_type.value,
+                        'description': alert.description,
+                        'source_ip': alert.source_ip,
+                        'dest_ip': alert.dest_ip,
+                        'protocol': alert.protocol,
+                        'confidence_score': alert.confidence_score,
+                        'is_resolved': alert.is_resolved,
+                        **(alert.packet_data or {})
+                    })
+            except Exception as db_err:
+                logger.error(f"Failed to persist alert {alert_id} to DB: {db_err}")
             
             # Update statistics
             self.alerts_by_severity[severity] += 1
@@ -153,7 +173,39 @@ class AlertManager:
                   resolved: Optional[bool] = None) -> List[Alert]:
         """Get alerts with optional filtering"""
         try:
-            alerts = list(self.alerts)
+            # Prefer database if available
+            if self.db_manager and getattr(self.db_manager, 'db', None):
+                filters = {}
+                if severity:
+                    filters['severity'] = severity.value
+                if detection_type:
+                    filters['detection_type'] = detection_type.value
+                if source_ip:
+                    filters['source_ip'] = source_ip
+                if resolved is not None:
+                    filters['resolved'] = resolved
+                raw_alerts = self.db_manager.get_alerts(filters, limit)
+                # Map DB documents to Alert models minimally
+                alerts = []
+                for a in raw_alerts:
+                    try:
+                        alerts.append(Alert(
+                            id=str(a.get('id') or a.get('_id')),
+                            timestamp=a.get('timestamp', datetime.now()),
+                            severity=AlertSeverity(a.get('severity', 'low')),
+                            detection_type=DetectionType(a.get('detection_type', 'ml')),
+                            description=a.get('description', ''),
+                            source_ip=a.get('source_ip', ''),
+                            dest_ip=a.get('dest_ip', ''),
+                            protocol=a.get('protocol', ''),
+                            confidence_score=a.get('confidence_score'),
+                            packet_data=a,
+                            is_resolved=a.get('is_resolved', a.get('resolved', False))
+                        ))
+                    except Exception:
+                        continue
+            else:
+                alerts = list(self.alerts)
             
             # Apply filters
             if severity:
