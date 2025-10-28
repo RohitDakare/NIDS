@@ -1,0 +1,6 @@
+2025-09-21 10:13:14,607 - app.utils.config - INFO - MongoDB connection successful
+2025-09-21 10:13:14,609 - app.utils.config - INFO - MongoDB database 'nids' is accessible
+2025-09-21 10:13:14,610 - __main__ - ERROR - Configuration validation failed
+2025-09-21 10:13:14,611 - __main__ - ERROR - Environment validation failed. Exiting.
+2025-09-23 19:54:16,367 - __main__ - ERROR - Configuration validation failed
+2025-09-23 19:54:16,368 - __main__ - ERROR - Environment validation failed. Exiting.

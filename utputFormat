@@ -1,0 +1,11 @@
+HTTP/1.1 307 Temporary Redirect
+date: Tue, 21 Oct 2025 15:47:14 GMT
+server: uvicorn
+content-length: 0
+location: http://127.0.0.1:8000/api/v1/signature-rules
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+content-security-policy: default-src 'self'
+

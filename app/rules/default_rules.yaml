@@ -1,0 +1,130 @@
+- description: Detects multiple failed SSH login attempts
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1110.001
+  name: SSH Brute Force
+  pattern: '22'
+  id: SIG-001
+  severity: high
+  tags:
+  - brute_force
+  - ssh
+- description: Detects port scanning activity
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1046
+  name: Port Scan
+  pattern: port_scan
+  id: SIG-002
+  severity: medium
+  tags:
+  - scan
+  - reconnaissance
+- description: Detects potential DDoS attack patterns
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1498
+  name: DDoS Attack
+  pattern: ddos
+  id: SIG-003
+  severity: critical
+  tags:
+  - ddos
+  - dos
+- description: Detects SQL injection attempts
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1190
+  name: SQL Injection
+  pattern: (?i)(?:union\s+select|select\s+.*\s+from|insert\s+into|update\s+.*\s+set|delete\s+from)
+  id: SIG-004
+  severity: high
+  tags:
+  - web
+  - injection
+- description: Detects Cross-Site Scripting (XSS) attempts
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1059.007
+  name: XSS Attack
+  pattern: (?i)(?:<script[^>]*>.*</script>|javascript:)
+  id: SIG-005
+  severity: high
+  tags:
+  - web
+  - xss
+- description: Detects suspicious HTTP User-Agent strings
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1040
+  name: Suspicious HTTP User Agent
+  pattern: (?i)(nmap|nikto|sqlmap|wget|curl|python-requests|hydra|metasploit|nessus|openvas)
+  id: SIG-006
+  severity: medium
+  tags:
+  - web
+  - reconnaissance
+- description: Detects suspicious DNS queries
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1071.004
+  name: Suspicious DNS Query
+  pattern: (?i)(?:dns-tunneling|tunnel|exfil|malware|command-and-control|cnc|c2)
+  id: SIG-007
+  severity: medium
+  tags:
+  - dns
+  - exfiltration
+- description: Detects traffic from known suspicious IP addresses
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1589.001
+  name: Suspicious IP Address
+  pattern: suspicious_ip
+  id: SIG-008
+  severity: low
+  tags:
+  - reputation
+  - ioc
+- description: Detects potential ICMP tunneling
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1572
+  name: ICMP Tunnel
+  pattern: ICMP
+  id: SIG-009
+  severity: high
+  tags:
+  - tunnel
+  - exfiltration
+- description: Detects potential data exfiltration attempts
+  enabled: true
+  last_match: null
+  matches_count: 0
+  metadata:
+    mitre_technique: T1020
+  name: Data Exfiltration
+  pattern: (?i)(?:passwd|shadow|confidential|secret|token|api[_-]?key)
+  id: SIG-010
+  severity: critical
+  tags:
+  - exfiltration
+  - data_loss

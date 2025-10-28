@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME:-nids_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-nids_password}
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: .
+    depends_on:
+      - mongo
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1}
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DB_NAME: nids
+      MONGODB_USERNAME: ${MONGODB_USERNAME:-nids_user}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD:-nids_password}
+      MONGODB_SSL_ENABLED: "false"
+      API_KEY: ${API_KEY:-dev-api-key}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./nids-dashboard
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-http://localhost:8000/api/v1}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+
+
