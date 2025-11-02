@@ -132,13 +132,13 @@ def _split_env_list(value: str, default: list[str]) -> list[str]:
     return [item.strip() for item in value.split(',') if item.strip()]
 
 # Trusted hosts from env (CSV). Default to localhost only in production-safe way
-trusted_hosts_env = os.getenv("TRUSTED_HOSTS", "localhost,127.0.0.1")
-trusted_hosts = _split_env_list(trusted_hosts_env, ["localhost", "127.0.0.1"])
+trusted_hosts_env = os.getenv("TRUSTED_HOSTS", "localhost,127.0.0.1,192.168.137.1")
+trusted_hosts = _split_env_list(trusted_hosts_env, ["localhost", "127.0.0.1", "192.168.137.1"])
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
 
 # CORS allowed origins from env (CSV). Defaults include local dev hosts
-cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
-cors_origins = _split_env_list(cors_origins_env, ["http://localhost:3000", "http://127.0.0.1:3000"])
+cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://192.168.137.1:3000")
+cors_origins = _split_env_list(cors_origins_env, ["http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.137.1:3000"])
 
 app.add_middleware(
     CORSMiddleware,

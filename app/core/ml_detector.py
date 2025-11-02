@@ -276,35 +276,56 @@ class MLDetector:
                 logger.error(f"Model integrity check failed for {model_path}")
                 return None
             
-            # Load the model
+            # Load the model/pipeline
             model_data = joblib.load(model_path)
             
-            if isinstance(model_data, dict):
+            # Create detector instance
+            detector = cls(MLModelConfig(model_path=model_path))
+            
+            # Check if we loaded a Pipeline (which is what save_model saves)
+            if isinstance(model_data, (Pipeline, ImbPipeline)):
+                # Pipeline format - load it directly
+                detector.pipeline = model_data
+                # Extract the model from the pipeline
+                if hasattr(model_data, 'named_steps'):
+                    detector.model = model_data.named_steps.get('classifier') or model_data.named_steps.get('classifier')
+                    if detector.model is None:
+                        # Try to get the last step which is usually the classifier
+                        last_step = list(model_data.named_steps.values())[-1] if model_data.named_steps else None
+                        detector.model = last_step
+                else:
+                    # Fallback: try to get model from steps
+                    if hasattr(model_data, 'steps') and len(model_data.steps) > 0:
+                        detector.model = model_data.steps[-1][1]  # Last step is usually the classifier
+                logger.info(f"Loaded fitted pipeline from {model_path}")
+            elif isinstance(model_data, dict):
                 # New format with metadata
                 model = model_data.get('model')
                 feature_names = model_data.get('feature_names', [])
                 model_type = model_data.get('model_type', 'unknown')
                 training_score = model_data.get('training_score', 0.0)
-                
+                detector.model = model
+                detector.feature_names = feature_names
                 logger.info(f"Loaded model: {model_type} (score: {training_score:.4f})")
             else:
-                # Legacy format - just the model
-                model = model_data
-                feature_names = []
-                model_type = 'legacy'
-                training_score = 0.0
+                # Legacy format - just the model, create pipeline around it
+                detector.model = model_data
+                # Reconstruct pipeline with the loaded model
+                detector._init_preprocessing_pipeline()
+                # Update the classifier in the pipeline
+                if hasattr(detector.pipeline, 'named_steps'):
+                    detector.pipeline.named_steps['classifier'] = detector.model
+                elif hasattr(detector.pipeline, 'steps') and len(detector.pipeline.steps) > 0:
+                    detector.pipeline.steps[-1] = ('classifier', detector.model)
+                logger.info(f"Loaded legacy model format from {model_path}")
             
-            # Create detector instance
-            detector = cls(MLModelConfig(model_path=model_path))
-            detector.model = model
-            detector.feature_names = feature_names
             detector.is_loaded = True
             
             logger.info(f"Secure model loaded successfully from {model_path}")
             return detector
             
         except Exception as e:
-            logger.error(f"Failed to load model from {model_path}: {e}")
+            logger.error(f"Failed to load model from {model_path}: {e}", exc_info=True)
             return None
     
     def predict(self, packet: PacketInfo) -> Tuple[bool, float, Dict[str, Any]]:
@@ -353,6 +374,20 @@ class MLDetector:
                 X_infer = X_np
             else:
                 X_infer = X
+
+            # Check if pipeline is fitted before making predictions
+            if self.pipeline is None:
+                logger.warning("Pipeline is not loaded - skipping prediction")
+                return False, 0.0, {}
+            
+            # Check if pipeline is fitted
+            try:
+                # Try to check if pipeline is fitted by checking for fitted attributes
+                if not hasattr(self.pipeline, 'steps') or len(self.pipeline.steps) == 0:
+                    logger.warning("Pipeline has no steps - model may not be loaded")
+                    return False, 0.0, {}
+            except Exception:
+                pass
 
             # Make prediction
             if hasattr(self.pipeline, 'predict_proba'):
