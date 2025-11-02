@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from typing import List, Optional, Dict, Any
 import logging
+import asyncio
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 
@@ -73,19 +74,51 @@ async def start_sniffer(
         # Start the NIDS system
         success = orchestrator.start()
         if not success:
-            raise HTTPException(status_code=500, detail="Failed to start NIDS system")
+            # Wait a moment for any errors to be captured
+            await asyncio.sleep(0.5)
+            
+            # Check for detailed error information
+            detailed_stats = orchestrator.get_detailed_stats()
+            sniffer_details = detailed_stats.get('component_details', {}).get('sniffer', {})
+            last_error = sniffer_details.get('last_error')
+            
+            error_detail = "Failed to start NIDS system"
+            if last_error:
+                error_detail += f": {last_error}"
+            
+            raise HTTPException(status_code=500, detail=error_detail)
         
         # Log security event
+        interface_name = getattr(request_data.config, 'interface', orchestrator.sniffer_config.interface) if request_data.config else orchestrator.sniffer_config.interface
         security_manager.log_security_event(
             "nids_started",
-            {"interface": getattr(request_data.config, 'interface', 'default') if request_data.config else 'default'},
+            {"interface": interface_name},
             get_client_ip(request)
         )
+        
+        # Wait a moment and check if sniffer is actually running
+        await asyncio.sleep(0.5)
+        system_status = orchestrator.get_system_status()
+        detailed_stats = orchestrator.get_detailed_stats()
+        sniffer_details = detailed_stats.get('component_details', {}).get('sniffer', {})
+        
+        if not system_status.is_running or not sniffer_details.get('is_running', False):
+            # Sniffer failed after start attempt
+            last_error = sniffer_details.get('last_error', 'Unknown error')
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Sniffer started but failed to run: {last_error}"
+            )
         
         return {
             "status": "success",
             "message": "NIDS system started successfully",
-            "system_status": orchestrator.get_system_status().model_dump()
+            "system_status": system_status.model_dump(),
+            "sniffer_info": {
+                "interface": sniffer_details.get('interface'),
+                "status": sniffer_details.get('status'),
+                "is_running": sniffer_details.get('is_running')
+            }
         }
         
     except Exception as e:
@@ -453,22 +486,48 @@ async def export_alerts(
 async def health_check(
     orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
 ):
-    """Health check endpoint"""
+    """Health check endpoint with detailed diagnostics"""
     try:
         system_status = orchestrator.get_system_status()
         detailed_stats = orchestrator.get_detailed_stats()
         
         # Check component health
         component_health = detailed_stats.get('component_health', {})
+        component_details = detailed_stats.get('component_details', {})
         all_healthy = all(component_health.values())
         
-        return {
+        # Get sniffer details for better diagnostics
+        sniffer_details = component_details.get('sniffer', {})
+        sniffer_status = sniffer_details.get('status', 'unknown')
+        
+        # Provide helpful messages based on sniffer status
+        messages = []
+        if not component_health.get('sniffer_healthy', False):
+            if sniffer_status == 'not_started':
+                messages.append("Sniffer is not started. Use POST /api/v1/start-sniffer to start it.")
+            elif sniffer_status == 'failed':
+                error_msg = sniffer_details.get('last_error', 'Unknown error')
+                messages.append(f"Sniffer failed to start: {error_msg}")
+                interface = sniffer_details.get('interface', 'unknown')
+                messages.append(f"Configured interface: {interface}")
+                if "Available interfaces" in error_msg:
+                    messages.append("Check available interfaces from the error message above.")
+            else:
+                messages.append("Sniffer is stopped.")
+        
+        response = {
             "status": "healthy" if all_healthy else "degraded",
             "system_running": system_status.is_running,
             "component_health": component_health,
+            "component_details": component_details,
             "uptime_seconds": system_status.uptime,
             "timestamp": system_status.uptime
         }
+        
+        if messages:
+            response["messages"] = messages
+        
+        return response
         
     except Exception as e:
         logger.error(f"Health check failed: {e}")

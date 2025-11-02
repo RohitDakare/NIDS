@@ -309,6 +309,26 @@ class NIDSOrchestrator:
                     'ml_healthy': self.ml_detector.is_loaded,
                     'signature_healthy': len(self.signature_detector.rules) > 0,
                     'alert_manager_healthy': True
+                },
+                'component_details': {
+                    'sniffer': {
+                        'is_running': self.packet_sniffer.is_running,
+                        'has_attempted_start': getattr(self.packet_sniffer, 'has_attempted_start', False),
+                        'status': 'running' if self.packet_sniffer.is_running else (
+                            'failed' if getattr(self.packet_sniffer, 'last_error', None) else 'not_started'
+                        ),
+                        'interface': self.packet_sniffer.config.interface,
+                        'last_error': getattr(self.packet_sniffer, 'last_error', None),
+                        'packets_captured': self.packet_sniffer.packets_captured
+                    },
+                    'ml_detector': {
+                        'is_loaded': self.ml_detector.is_loaded,
+                        'status': 'loaded' if self.ml_detector.is_loaded else 'not_loaded'
+                    },
+                    'signature_detector': {
+                        'rules_count': len(self.signature_detector.rules),
+                        'status': 'configured' if len(self.signature_detector.rules) > 0 else 'no_rules'
+                    }
                 }
             }
             

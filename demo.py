@@ -90,13 +90,31 @@ def demo_health_check():
         status = result.get('status', 'unknown')
         system_running = result.get('system_running', False)
         component_health = result.get('component_health', {})
+        component_details = result.get('component_details', {})
+        messages = result.get('messages', [])
         
         print(f"Overall Status: {status}")
         print(f"System Running: {system_running}")
-        print("Component Health:")
+        print("\nComponent Health:")
         for component, healthy in component_health.items():
             status_icon = "OK" if healthy else "FAIL"
             print(f"   {status_icon} {component}: {'Healthy' if healthy else 'Unhealthy'}")
+        
+        # Show detailed sniffer information if available
+        sniffer_details = component_details.get('sniffer', {})
+        if sniffer_details:
+            print("\nSniffer Details:")
+            print(f"   Status: {sniffer_details.get('status', 'unknown')}")
+            print(f"   Interface: {sniffer_details.get('interface', 'unknown')}")
+            print(f"   Is Running: {sniffer_details.get('is_running', False)}")
+            if sniffer_details.get('last_error'):
+                print(f"   Last Error: {sniffer_details.get('last_error')}")
+        
+        # Show helpful messages
+        if messages:
+            print("\nMessages:")
+            for msg in messages:
+                print(f"   - {msg}")
 
 def demo_system_status():
     """Demo system status endpoint"""
