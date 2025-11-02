@@ -52,7 +52,24 @@ class MLDetector:
         self.is_loaded = False
         self.anomalies_detected = 0
         self.model_expects_raw = False
+        self.pipeline = None
         self._init_model()
+        
+        # Try to load model from file if it exists
+        if self.config.model_path and os.path.exists(self.config.model_path):
+            try:
+                loaded_detector = self.load_model(self.config.model_path)
+                if loaded_detector and loaded_detector.is_loaded:
+                    # Copy the loaded pipeline and model to this instance
+                    self.pipeline = loaded_detector.pipeline
+                    self.model = loaded_detector.model
+                    self.is_loaded = True
+                    self.feature_columns = loaded_detector.feature_columns
+                    logger.info(f"Successfully loaded model from {self.config.model_path}")
+                else:
+                    logger.warning(f"Model file exists but failed to load: {self.config.model_path}")
+            except Exception as e:
+                logger.warning(f"Could not load model from {self.config.model_path}: {e}")
     
     def _get_feature_columns(self) -> List[str]:
         """Get the list of feature columns for model training."""
@@ -382,25 +399,58 @@ class MLDetector:
             
             # Check if pipeline is fitted
             try:
-                # Try to check if pipeline is fitted by checking for fitted attributes
+                # Check if pipeline has steps
                 if not hasattr(self.pipeline, 'steps') or len(self.pipeline.steps) == 0:
                     logger.warning("Pipeline has no steps - model may not be loaded")
                     return False, 0.0, {}
+                
+                # Check if pipeline is fitted by trying to access fitted attributes
+                # sklearn pipelines have fitted transformers/estimators
+                if not hasattr(self.pipeline, 'named_steps') and not hasattr(self.pipeline, 'steps'):
+                    logger.warning("Pipeline structure is invalid")
+                    return False, 0.0, {}
+                
+                # Check if any step is fitted (most reliable check)
+                try:
+                    # Try to access a fitted attribute from the first transformer/estimator
+                    first_step = self.pipeline.steps[0][1] if hasattr(self.pipeline, 'steps') else None
+                    if first_step is not None:
+                        # Check if fitted by looking for common fitted attributes
+                        if not (hasattr(first_step, 'mean_') or hasattr(first_step, 'feature_names_in_') or 
+                                hasattr(first_step, 'n_features_in_') or hasattr(first_step, 'classes_')):
+                            # For models that don't have these, try to check if they're fitted
+                            if hasattr(first_step, '__dict__') and len(first_step.__dict__) == 0:
+                                logger.warning("Pipeline appears to be unfitted")
+                                return False, 0.0, {}
+                except Exception as check_error:
+                    logger.debug(f"Could not verify pipeline fitted state: {check_error}")
             except Exception:
                 pass
 
-            # Make prediction
-            if hasattr(self.pipeline, 'predict_proba'):
-                # For classification models with probability estimates
-                prediction = self.pipeline.predict(X_infer)[0]
-                proba = self.pipeline.predict_proba(X_infer)[0]
-                confidence = max(proba)
-                is_anomalous = prediction == 1
-            else:
-                # For anomaly detection models
-                prediction = self.pipeline.predict(X_infer)[0]
-                is_anomalous = prediction == -1
-                confidence = 0.8 if is_anomalous else 0.2  # Default confidence
+            # Make prediction - wrap in try-except to catch NotFittedError
+            try:
+                from sklearn.utils.validation import check_is_fitted
+                # Check if pipeline is fitted
+                check_is_fitted(self.pipeline)
+            except Exception as fitted_check:
+                logger.warning(f"Pipeline is not fitted yet: {fitted_check}. Skipping prediction.")
+                return False, 0.0, {'error': 'Model not fitted', 'model_loaded': self.is_loaded}
+            
+            try:
+                if hasattr(self.pipeline, 'predict_proba'):
+                    # For classification models with probability estimates
+                    prediction = self.pipeline.predict(X_infer)[0]
+                    proba = self.pipeline.predict_proba(X_infer)[0]
+                    confidence = max(proba)
+                    is_anomalous = prediction == 1
+                else:
+                    # For anomaly detection models
+                    prediction = self.pipeline.predict(X_infer)[0]
+                    is_anomalous = prediction == -1
+                    confidence = 0.8 if is_anomalous else 0.2  # Default confidence
+            except Exception as pred_error:
+                logger.error(f"Error during prediction: {pred_error}")
+                return False, 0.0, {'error': str(pred_error), 'model_loaded': self.is_loaded}
             
             # Additional information for analysis
             additional_info = {

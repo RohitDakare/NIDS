@@ -302,11 +302,27 @@ The NIDS system can be tested with various attack patterns and data packets. Her
    ```
 
 2. **Start the Sniffer** (via API or dashboard):
+   
+   **Bash/Linux/Mac:**
    ```bash
-   # Using curl
    curl -X POST http://localhost:8000/api/v1/start-sniffer \
         -H "Content-Type: application/json" \
-        -d '{"interface": "Wi-Fi"}'
+        -H "Authorization: Bearer nids-dev-api-key-12345678901234567890123456789012" \
+        -d '{"config": {"interface": "Wi-Fi"}}'
+   ```
+   
+   **PowerShell/Windows:**
+   ```powershell
+   $headers = @{
+       "Authorization" = "Bearer nids-dev-api-key-12345678901234567890123456789012"
+       "Content-Type" = "application/json"
+   }
+   $body = @{
+       config = @{
+           interface = "Wi-Fi"
+       }
+   } | ConvertTo-Json -Depth 3
+   Invoke-RestMethod -Uri http://localhost:8000/api/v1/start-sniffer -Method Post -Headers $headers -Body $body
    ```
 
 ### Method 1: Simulated Attack Testing (Safe - Recommended)
@@ -400,10 +416,27 @@ python test_sniffer.py
    ```
 
 2. **Start Packet Capture** (in another terminal):
+   
+   **Bash/Linux/Mac:**
    ```bash
    curl -X POST http://localhost:8000/api/v1/start-sniffer \
         -H "Content-Type: application/json" \
-        -d '{"interface": "Wi-Fi"}'
+        -H "Authorization: Bearer nids-dev-api-key-12345678901234567890123456789012" \
+        -d '{"config": {"interface": "Wi-Fi"}}'
+   ```
+   
+   **PowerShell/Windows:**
+   ```powershell
+   $headers = @{
+       "Authorization" = "Bearer nids-dev-api-key-12345678901234567890123456789012"
+       "Content-Type" = "application/json"
+   }
+   $body = @{
+       config = @{
+           interface = "Wi-Fi"
+       }
+   } | ConvertTo-Json -Depth 3
+   Invoke-RestMethod -Uri http://localhost:8000/api/v1/start-sniffer -Method Post -Headers $headers -Body $body
    ```
 
 3. **Run Attack Generator** (in another terminal):
@@ -413,16 +446,32 @@ python test_sniffer.py
    ```
 
 4. **Monitor Alerts**:
+   
+   **Bash/Linux/Mac:**
    ```bash
    # View alerts via API
-   curl http://localhost:8000/api/v1/alerts
-   
-   # Or check the dashboard at http://localhost:3000
+   curl -H "Authorization: Bearer nids-dev-api-key-12345678901234567890123456789012" http://localhost:8000/api/v1/alerts
    ```
+   
+   **PowerShell/Windows:**
+   ```powershell
+   $headers = @{ "Authorization" = "Bearer nids-dev-api-key-12345678901234567890123456789012" }
+   Invoke-RestMethod -Uri http://localhost:8000/api/v1/alerts -Headers $headers
+   ```
+   
+   Or check the dashboard at http://localhost:3000
 
 5. **Check Detection Statistics**:
+   
+   **Bash/Linux/Mac:**
    ```bash
-   curl http://localhost:8000/api/v1/stats
+   curl -H "Authorization: Bearer nids-dev-api-key-12345678901234567890123456789012" http://localhost:8000/api/v1/stats
+   ```
+   
+   **PowerShell/Windows:**
+   ```powershell
+   $headers = @{ "Authorization" = "Bearer nids-dev-api-key-12345678901234567890123456789012" }
+   Invoke-RestMethod -Uri http://localhost:8000/api/v1/stats -Headers $headers
    ```
 
 ### Expected Results
@@ -468,26 +517,66 @@ This will simulate packet capture and detection without requiring actual network
 
 ### API Examples
 
+**Bash/Linux/Mac:**
 ```bash
+# Set API key variable
+export API_KEY="nids-dev-api-key-12345678901234567890123456789012"
+
 # Start sniffer
 curl -X POST http://localhost:8000/api/v1/start-sniffer \
      -H "Content-Type: application/json" \
-     -d '{"interface": "Wi-Fi"}'
+     -H "Authorization: Bearer $API_KEY" \
+     -d '{"config": {"interface": "Wi-Fi"}}'
 
-# Check status
+# Check status (no auth required)
 curl http://localhost:8000/api/v1/status
 
 # Get recent alerts
-curl http://localhost:8000/api/v1/alerts
+curl -H "Authorization: Bearer $API_KEY" http://localhost:8000/api/v1/alerts
 
 # Stop sniffer
-curl -X POST http://localhost:8000/api/v1/stop-sniffer
+curl -X POST http://localhost:8000/api/v1/stop-sniffer \
+     -H "Authorization: Bearer $API_KEY"
 ```
 
-**Note**: In production with authentication enabled, add header:
-```bash
--H "Authorization: Bearer YOUR_API_KEY"
+**PowerShell/Windows:**
+```powershell
+# Set API key variable
+$API_KEY = "nids-dev-api-key-12345678901234567890123456789012"
+
+# Start sniffer
+$headers = @{
+    "Authorization" = "Bearer $API_KEY"
+    "Content-Type" = "application/json"
+}
+$body = @{
+    config = @{
+        interface = "Wi-Fi"
+    }
+} | ConvertTo-Json -Depth 3
+Invoke-RestMethod -Uri http://localhost:8000/api/v1/start-sniffer -Method Post -Headers $headers -Body $body
+
+# Check status (no auth required)
+Invoke-RestMethod -Uri http://localhost:8000/api/v1/status
+
+# Get recent alerts
+$headers = @{ "Authorization" = "Bearer $API_KEY" }
+Invoke-RestMethod -Uri http://localhost:8000/api/v1/alerts -Headers $headers
+
+# Stop sniffer
+Invoke-RestMethod -Uri http://localhost:8000/api/v1/stop-sniffer -Method Post -Headers $headers
 ```
+
+**Alternative: Using curl.exe (Windows)**
+```powershell
+# If you have curl.exe installed (not PowerShell alias)
+curl.exe -X POST http://localhost:8000/api/v1/start-sniffer `
+     -H "Content-Type: application/json" `
+     -H "Authorization: Bearer nids-dev-api-key-12345678901234567890123456789012" `
+     -d "{\"config\": {\"interface\": \"Wi-Fi\"}}"
+```
+
+**Note**: Replace `YOUR_API_KEY` with your actual API key from `.env` file. The default development key is `nids-dev-api-key-12345678901234567890123456789012`.
 
 Full API documentation available at: http://localhost:8000/docs
 
@@ -834,10 +923,25 @@ lsof -ti:8000 | xargs kill
 
 #### 7. "API Authentication Failing"
 
+**Bash/Linux/Mac:**
 ```bash
 # Check API key is set in .env
-echo $API_KEY  # Linux/Mac
-echo %API_KEY% # Windows
+echo $API_KEY
+
+# Regenerate API key
+python scripts/secure_deploy.py
+
+# Restart server
+python -m app.main
+```
+
+**PowerShell/Windows:**
+```powershell
+# Check API key is set in .env
+Get-Content .env | Select-String "API_KEY"
+
+# Or check environment variable
+$env:API_KEY
 
 # Regenerate API key
 python scripts/secure_deploy.py
@@ -848,12 +952,26 @@ python -m app.main
 
 #### 8. "No Alerts Generated During Testing"
 
+**Bash/Linux/Mac:**
 ```bash
 # Check ML model is loaded
 curl http://localhost:8000/api/v1/status
 
 # Verify sniffer is running
 curl http://localhost:8000/api/v1/status | grep is_running
+
+# Check detection thresholds
+# Lower CONFIDENCE_THRESHOLD in .env if needed
+```
+
+**PowerShell/Windows:**
+```powershell
+# Check ML model is loaded
+Invoke-RestMethod -Uri http://localhost:8000/api/v1/status
+
+# Verify sniffer is running
+$status = Invoke-RestMethod -Uri http://localhost:8000/api/v1/status
+$status.is_running
 
 # Check detection thresholds
 # Lower CONFIDENCE_THRESHOLD in .env if needed
@@ -894,8 +1012,15 @@ python -m app.main --log-level debug
    python scripts/security_test.py
    ```
 4. Check system status:
+   
+   **Bash/Linux/Mac:**
    ```bash
    curl http://localhost:8000/api/v1/health
+   ```
+   
+   **PowerShell/Windows:**
+   ```powershell
+   Invoke-RestMethod -Uri http://localhost:8000/api/v1/health
    ```
 
 ## 📝 License
