@@ -677,12 +677,25 @@ class SignatureDetector:
     
     def get_stats(self) -> Dict[str, Any]:
         """Get signature detection statistics."""
-        enabled_rules = sum(1 for rule in self.rules.values() if rule.enabled)
-        disabled_rules = len(self.rules) - enabled_rules
+        enabled_rules_count = sum(1 for rule in self.rules.values() if rule.enabled)
+        disabled_rules = len(self.rules) - enabled_rules_count
+        
+        # Get all enabled rules as an array (for frontend)
+        enabled_rules_list = [
+            {
+                'id': rule.rule_id,
+                'name': rule.name,
+                'enabled': rule.enabled,
+                'matches': rule.matches_count,
+                'severity': rule.severity.value
+            }
+            for rule in self.rules.values() if rule.enabled
+        ]
         
         return {
             'total_rules': len(self.rules),
-            'enabled_rules': enabled_rules,
+            'enabled_rules': enabled_rules_list,  # Array of enabled rules
+            'enabled_rules_count': enabled_rules_count,  # Count for backward compatibility
             'disabled_rules': disabled_rules,
             'matches_count': self.matches_count,
             'top_rules': sorted(

@@ -89,7 +89,7 @@ class AlertManager:
 
             # Persist to database if available
             try:
-                if self.db_manager and getattr(self.db_manager, 'db', None):
+                if self.db_manager and getattr(self.db_manager, 'db', None) is not None:
                     self.db_manager.insert_alert({
                         'id': alert.id,
                         'timestamp': alert.timestamp,
@@ -174,7 +174,7 @@ class AlertManager:
         """Get alerts with optional filtering"""
         try:
             # Prefer database if available
-            if self.db_manager and getattr(self.db_manager, 'db', None):
+            if self.db_manager and getattr(self.db_manager, 'db', None) is not None:
                 filters = {}
                 if severity:
                     filters['severity'] = severity.value

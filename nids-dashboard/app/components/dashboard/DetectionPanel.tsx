@@ -21,7 +21,7 @@ export function DetectionPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mlStats, setMlStats] = useState<any>({});
-  const [sigStats, setSigStats] = useState<{ enabled_rules?: RuleStat[]; total_rules?: number; top_rules?: any[] }>({});
+  const [sigStats, setSigStats] = useState<{ enabled_rules?: RuleStat[]; enabled_rules_count?: number; total_rules?: number; top_rules?: any[] }>({});
   const [detectionRates, setDetectionRates] = useState<any>({});
 
   const load = async () => {
@@ -80,7 +80,7 @@ export function DetectionPanel() {
                   return sum;
                 })()
               }</div>
-              <p className="text-xs text-muted-foreground">Enabled rules: {sigStats?.enabled_rules ?? 0} / {sigStats?.total_rules ?? "-"}</p>
+              <p className="text-xs text-muted-foreground">Enabled rules: {sigStats?.enabled_rules_count ?? (Array.isArray(sigStats?.enabled_rules) ? sigStats.enabled_rules.length : 0)} / {sigStats?.total_rules ?? "-"}</p>
             </CardContent>
           </Card>
 

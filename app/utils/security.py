@@ -10,7 +10,7 @@ import ipaddress
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
 import re
@@ -224,7 +224,7 @@ model_security = ModelSecurityManager()
 # Security decorators and dependencies
 security = HTTPBearer()
 
-async def verify_api_key(credentials: HTTPAuthorizationCredentials = None):
+async def verify_api_key(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """FastAPI dependency for API key verification"""
     # If no API key is configured, allow access for testing
     if not security_manager.api_key:

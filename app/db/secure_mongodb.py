@@ -11,8 +11,12 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure, ServerSelectionTimeoutError
 import ssl
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
 
 from app.utils.security import security_manager, input_validator
+
+# Load environment variables from .env file
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +26,8 @@ class SecureMongoManager:
     def __init__(self):
         self.client = None
         self.db = None
-        self.connection_string = self._build_secure_connection_string()
         self.db_name = os.getenv("MONGODB_DB_NAME", "nids")
+        self.connection_string = self._build_secure_connection_string()
         
     def _build_secure_connection_string(self) -> str:
         """Build secure MongoDB connection string"""
@@ -32,6 +36,7 @@ class SecureMongoManager:
         password = os.getenv("MONGODB_PASSWORD")
         host = os.getenv("MONGODB_HOST", "localhost")
         port = os.getenv("MONGODB_PORT", "27017")
+        db_name = os.getenv("MONGODB_DB_NAME", "nids")
         
         if not password:
             logger.warning("No MongoDB password configured - using insecure connection")
@@ -42,7 +47,7 @@ class SecureMongoManager:
         password_encoded = quote_plus(password)
         
         # Build secure connection string
-        connection_string = f"mongodb://{username_encoded}:{password_encoded}@{host}:{port}/{self.db_name}?authSource=admin"
+        connection_string = f"mongodb://{username_encoded}:{password_encoded}@{host}:{port}/{db_name}?authSource=admin"
         
         # Add SSL options if enabled
         if os.getenv("MONGODB_SSL_ENABLED", "false").lower() == "true":
