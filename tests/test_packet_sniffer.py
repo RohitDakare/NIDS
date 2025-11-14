@@ -7,16 +7,16 @@ from app.models.schemas import SnifferConfig, PacketInfo
 
 class TestPacketSniffer:
     """Test cases for PacketSniffer class"""
-    
+
     @pytest.fixture
     def sniffer_config(self):
         """Create a test sniffer configuration"""
         return SnifferConfig(
-            interface="lo",  # Use loopback for testing
+            interface="Loopback Pseudo-Interface 1",  # Use Windows loopback for testing
             packet_count=10,
             timeout=5
         )
-    
+
     @pytest.fixture
     def packet_sniffer(self, sniffer_config):
         """Create a test packet sniffer instance"""

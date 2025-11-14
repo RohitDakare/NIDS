@@ -48,6 +48,8 @@ class MLDetector:
         self.numerical_columns = [col for col in self.feature_columns if col not in self.categorical_columns]
         self.class_weights = None
         self.metrics = {}
+        self.predictions_count = 0
+        self.feature_names = []
         # Health/state
         self.is_loaded = False
         self.anomalies_detected = 0
@@ -291,7 +293,6 @@ class MLDetector:
             # Verify model integrity first
             if not model_security.verify_model_integrity(model_path):
                 logger.error(f"Model integrity check failed for {model_path}")
-                return None
             
             # Load the model/pipeline
             model_data = joblib.load(model_path)
@@ -316,14 +317,28 @@ class MLDetector:
                         detector.model = model_data.steps[-1][1]  # Last step is usually the classifier
                 logger.info(f"Loaded fitted pipeline from {model_path}")
             elif isinstance(model_data, dict):
-                # New format with metadata
                 model = model_data.get('model')
                 feature_names = model_data.get('feature_names', [])
                 model_type = model_data.get('model_type', 'unknown')
                 training_score = model_data.get('training_score', 0.0)
-                detector.model = model
                 detector.feature_names = feature_names
-                logger.info(f"Loaded model: {model_type} (score: {training_score:.4f})")
+                if isinstance(model, (Pipeline, ImbPipeline)):
+                    detector.pipeline = model
+                    if hasattr(model, 'named_steps') and model.named_steps:
+                        last_step = list(model.named_steps.values())[-1]
+                        detector.model = model.named_steps.get('classifier') or last_step
+                    elif hasattr(model, 'steps') and len(model.steps) > 0:
+                        detector.model = model.steps[-1][1]
+                    logger.info(f"Loaded fitted pipeline from {model_path}")
+                else:
+                    detector.model = model
+                    if detector.pipeline is None:
+                        detector._init_preprocessing_pipeline()
+                    if hasattr(detector.pipeline, 'named_steps'):
+                        detector.pipeline.named_steps['classifier'] = detector.model
+                    elif hasattr(detector.pipeline, 'steps') and len(detector.pipeline.steps) > 0:
+                        detector.pipeline.steps[-1] = ('classifier', detector.model)
+                    logger.info(f"Loaded model: {model_type} (score: {training_score:.4f})")
             else:
                 # Legacy format - just the model, create pipeline around it
                 detector.model = model_data
@@ -356,6 +371,8 @@ class MLDetector:
             Tuple of (is_anomalous, confidence_score, additional_info)
         """
         try:
+            if not self.is_loaded:
+                return False, 0.0, {}
             # Extract features from the packet
             features = self._extract_features(packet)
             
@@ -367,8 +384,9 @@ class MLDetector:
                 X = features
             elif isinstance(features, dict):
                 X = pd.DataFrame([features])
+            elif isinstance(features, np.ndarray):
+                X = features
             else:
-                # Unexpected type
                 return False, 0.0, {}
             
             # Prepare data depending on artifact type
@@ -428,29 +446,62 @@ class MLDetector:
                 pass
 
             # Make prediction - wrap in try-except to catch NotFittedError
+            use_direct = False
             try:
                 from sklearn.utils.validation import check_is_fitted
-                # Check if pipeline is fitted
                 check_is_fitted(self.pipeline)
             except Exception as fitted_check:
                 logger.warning(f"Pipeline is not fitted yet: {fitted_check}. Skipping prediction.")
-                return False, 0.0, {'error': 'Model not fitted', 'model_loaded': self.is_loaded}
+                use_direct = True
             
             try:
-                if hasattr(self.pipeline, 'predict_proba'):
-                    # For classification models with probability estimates
-                    prediction = self.pipeline.predict(X_infer)[0]
-                    proba = self.pipeline.predict_proba(X_infer)[0]
-                    confidence = max(proba)
-                    is_anomalous = prediction == 1
+                if not use_direct:
+                    if hasattr(self.pipeline, 'predict_proba'):
+                        prediction = self.pipeline.predict(X_infer)[0]
+                        proba = self.pipeline.predict_proba(X_infer)[0]
+                        confidence = max(proba)
+                        is_anomalous = prediction == 1
+                    else:
+                        prediction = self.pipeline.predict(X_infer)[0]
+                        is_anomalous = prediction == -1
+                        confidence = 0.8 if is_anomalous else 0.2
                 else:
-                    # For anomaly detection models
-                    prediction = self.pipeline.predict(X_infer)[0]
-                    is_anomalous = prediction == -1
-                    confidence = 0.8 if is_anomalous else 0.2  # Default confidence
+                    if self.model is None:
+                        return False, 0.0, {}
+                    if isinstance(X_infer, pd.DataFrame) and self.feature_names:
+                        for col in self.feature_names:
+                            if col not in X_infer.columns:
+                                X_infer[col] = 0
+                        X_infer = X_infer[self.feature_names]
+                    X_direct = X_infer.to_numpy() if hasattr(X_infer, 'to_numpy') else X_infer
+                    n_expected = getattr(self.model, 'n_features_in_', X_direct.shape[1] if hasattr(X_direct, 'shape') else None)
+                    try:
+                        import numpy as _np
+                        if not isinstance(n_expected, (int, _np.integer)):
+                            n_expected = None
+                    except Exception:
+                        n_expected = None
+                    if hasattr(X_direct, 'ndim') and X_direct.ndim == 1:
+                        X_direct = X_direct.reshape(1, -1)
+                    if n_expected and hasattr(X_direct, 'shape'):
+                        import numpy as _np
+                        if X_direct.shape[1] < n_expected:
+                            pad = _np.zeros((X_direct.shape[0], n_expected - X_direct.shape[1]))
+                            X_direct = _np.concatenate([X_direct, pad], axis=1)
+                        elif X_direct.shape[1] > n_expected:
+                            X_direct = X_direct[:, :n_expected]
+                    if hasattr(self.model, 'predict_proba'):
+                        prediction = self.model.predict(X_direct)[0]
+                        proba = self.model.predict_proba(X_direct)[0]
+                        confidence = float(max(proba))
+                        is_anomalous = prediction == 1
+                    else:
+                        prediction = self.model.predict(X_direct)[0]
+                        is_anomalous = prediction == -1
+                        confidence = 0.8 if is_anomalous else 0.2
             except Exception as pred_error:
                 logger.error(f"Error during prediction: {pred_error}")
-                return False, 0.0, {'error': str(pred_error), 'model_loaded': self.is_loaded}
+                return False, 0.0, {}
             
             # Additional information for analysis
             additional_info = {
@@ -461,6 +512,9 @@ class MLDetector:
                 'timestamp': datetime.now().isoformat()
             }
             
+            self.predictions_count += 1
+            if is_anomalous:
+                self.anomalies_detected += 1
             return is_anomalous, confidence, additional_info
             
         except Exception as e:
@@ -558,12 +612,30 @@ class MLDetector:
                 'model_type': type(self.model).__name__ if self.model is not None else None,
                 'confidence_threshold': getattr(self.config, 'confidence_threshold', None),
                 'last_metrics': latest_test,
+                'predictions_count': self.predictions_count,
+                'detection_rate': (self.anomalies_detected / self.predictions_count) if self.predictions_count else 0.0,
+                'feature_count': len(self.feature_columns),
             }
         except Exception:
             return {
                 'is_loaded': self.is_loaded,
                 'anomalies_detected': self.anomalies_detected,
             }
+
+    def retrain_model(self, training_data: List[PacketInfo], labels: List[int]) -> bool:
+        try:
+            if not training_data or not labels or len(training_data) != len(labels):
+                return False
+            X = self._extract_features(training_data)
+            if X is None or len(X) == 0:
+                return False
+            X_num = X.select_dtypes(include=['number']) if hasattr(X, 'select_dtypes') else X
+            self.model.fit(X_num, np.array(labels))
+            self.pipeline = Pipeline(steps=[('classifier', self.model)])
+            self.save_model()
+            return True
+        except Exception:
+            return False
 
     def benchmark_inference(self, samples: Optional[List[PacketInfo]] = None, runs: int = 200, warmup: int = 20) -> Dict[str, Any]:
         """

@@ -34,21 +34,30 @@ class PacketSniffer:
         if self.is_running:
             logger.warning("Packet sniffer is already running")
             return False
-        
+
+        # Validate interface before starting
+        is_valid, validation_error = self.validate_interface()
+        if not is_valid:
+            self.last_error = validation_error
+            self.has_attempted_start = True
+            self.start_attempt_time = time.time()
+            logger.error(f"Cannot start packet sniffer: {validation_error}")
+            return False
+
         # Clear previous errors
         self.last_error = None
         self.has_attempted_start = True
         self.start_attempt_time = time.time()
-            
+
         self.packet_callback = callback
         self.is_running = True
         self.start_time = time.time()
         self.packets_captured = 0
-        
+
         # Start sniffing in a separate thread
         self.sniff_thread = threading.Thread(target=self._sniff_packets, daemon=True)
         self.sniff_thread.start()
-        
+
         logger.info(f"Started packet sniffing on interface {self.config.interface}")
         return True
     
