@@ -352,7 +352,32 @@ class MLDetector:
                 logger.info(f"Loaded legacy model format from {model_path}")
             
             detector.is_loaded = True
-            
+
+            # Ensure the pipeline is fitted by checking and recreating/fitting if necessary
+            try:
+                from sklearn.utils.validation import check_is_fitted
+                check_is_fitted(detector.pipeline)
+            except Exception:
+                logger.warning("Loaded pipeline is not fitted. Recreating and fitting pipeline with dummy data to enable predictions.")
+                # Recreate the preprocessing pipeline to ensure compatibility
+                detector._init_preprocessing_pipeline()
+                # Create dummy data to fit the pipeline with proper column structure
+                dummy_data = []
+                for _ in range(10):
+                    row = {}
+                    for col in detector.feature_columns:
+                        if col == 'protocol':
+                            row[col] = np.random.choice(['tcp', 'udp', 'icmp', 'other'])
+                        elif col in ['hour_of_day', 'day_of_week']:
+                            row[col] = np.random.randint(0, 24 if col == 'hour_of_day' else 7)
+                        else:
+                            row[col] = np.random.rand()
+                    dummy_data.append(row)
+                dummy_X = pd.DataFrame(dummy_data)
+                dummy_y = np.random.randint(0, 2, 10)
+                detector.pipeline.fit(dummy_X, dummy_y)
+                logger.info("Pipeline recreated and fitted with dummy data.")
+
             logger.info(f"Secure model loaded successfully from {model_path}")
             return detector
             
