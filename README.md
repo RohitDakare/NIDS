@@ -1085,3 +1085,44 @@ python detect_interfaces.py              # Auto-detect interfaces
 **Built with ❤️ for network security professionals**
 
 For detailed information about any specific aspect, check the inline code comments and API documentation at http://localhost:8000/docs when the server is running.
+
+
+<!-- .env -->
+<!-- # MongoDB Configuration
+MONGODB_URL=mongodb://localhost:27017/
+MONGODB_DB_NAME=nids
+# Uncomment and set these if your MongoDB requires authentication
+MONGODB_USERNAME=nids_user
+MONGODB_PASSWORD=YWvjWV5UGnUFwc7m1I5Zng
+MONGODB_AUTH_SOURCE=admin
+
+# Application Settings
+INTERFACE=Wi-Fi
+PACKET_COUNT=1000
+TIMEOUT=30
+MODEL_PATH=app/ml_models/nids_model.joblib
+CONFIDENCE_THRESHOLD=0.8
+LOG_LEVEL=INFO
+LOG_FILE=logs/nids.log
+
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+API_RELOAD=true
+
+# Security
+# Generate a secure random key: `openssl rand -hex 32`
+API_KEY=nids-dev-api-key-12345678901234567890123456789012
+
+# Performance Settings
+MAX_ALERTS=10000
+MAX_PACKETS_BUFFER=10000
+MAX_CONNECTIONS=100
+
+# Detection Settings
+RATE_LIMIT_PACKETS_PER_SECOND=100
+RATE_LIMIT_BYTES_PER_SECOND=1000000
+CORRELATION_WINDOW_MINUTES=5
+
+
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://192.168.137.1:3000 -->
