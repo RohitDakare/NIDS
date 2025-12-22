@@ -43,47 +43,8 @@ nids_state = {
     "alerts_count": 0,
     "packets_processed": 0,
     "start_time": datetime.now(),
-    "alerts": [
-        {
-            "id": "alert_001",
-            "timestamp": "2024-01-20T10:30:00Z",
-            "severity": "high",
-            "type": "malware",
-            "description": "Suspicious executable detected in network traffic",
-            "source_ip": "192.168.1.100",
-            "destination_ip": "10.0.0.50",
-            "protocol": "TCP",
-            "port": 443,
-            "status": "active",
-            "confidence": 0.95
-        },
-        {
-            "id": "alert_002", 
-            "timestamp": "2024-01-20T10:25:00Z",
-            "severity": "medium",
-            "type": "intrusion",
-            "description": "Multiple failed login attempts detected",
-            "source_ip": "192.168.1.200",
-            "destination_ip": "10.0.0.10",
-            "protocol": "SSH",
-            "port": 22,
-            "status": "active",
-            "confidence": 0.87
-        }
-    ],
-    "packets": [
-        {
-            "id": "packet_001",
-            "timestamp": "2024-01-20T10:35:00Z",
-            "source_ip": "192.168.1.50",
-            "destination_ip": "8.8.8.8",
-            "protocol": "UDP",
-            "port": 53,
-            "size": 64,
-            "flags": ["DNS"],
-            "threat_level": "low"
-        }
-    ],
+    "alerts": [],
+    "packets": [],
     "signature_rules": [
         {
             "id": "rule_001",

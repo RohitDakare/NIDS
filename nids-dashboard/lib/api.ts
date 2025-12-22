@@ -49,6 +49,7 @@ export async function stopSniffer() {
   const res = await fetch(`${API_BASE_URL}/stop-sniffer`, {
     method: "POST",
     headers: getAuthHeaders(),
+    body: JSON.stringify({}),
   });
   if (!res.ok) throw new Error("Failed to stop sniffer");
   return res.json();

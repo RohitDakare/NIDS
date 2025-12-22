@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { 
-  fetchAlerts, 
-  fetchSystemStatus, 
-  fetchStats 
+import {
+  fetchAlerts,
+  fetchSystemStatus,
+  fetchStats
 } from '../api';
 
 interface Alert {
@@ -42,25 +42,12 @@ export function useNIDSData() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Generate mock traffic data (since this endpoint might not exist yet)
-  const generateMockTrafficData = () => {
-    return Array.from({ length: 24 }, (_, i) => {
-      const baseTime = new Date();
-      baseTime.setHours(baseTime.getHours() - (23 - i));
-      return {
-        timestamp: baseTime.toISOString(),
-        incoming: Math.floor(Math.random() * 1000) + 500,
-        outgoing: Math.floor(Math.random() * 800) + 300,
-        threats: Math.floor(Math.random() * 10),
-      };
-    });
-  };
 
   // Convert backend alert format to frontend format
   const convertAlert = (backendAlert: any): Alert => ({
     id: backendAlert.id || `alert-${Date.now()}`,
-    type: backendAlert.detection_type === 'ml' ? 'threat' : 
-          backendAlert.severity === 'critical' ? 'threat' : 'warning',
+    type: backendAlert.detection_type === 'ml' ? 'threat' :
+      backendAlert.severity === 'critical' ? 'threat' : 'warning',
     severity: backendAlert.severity || 'medium',
     message: backendAlert.description || 'Security event detected',
     timestamp: backendAlert.timestamp || new Date().toISOString(),
@@ -68,10 +55,11 @@ export function useNIDSData() {
   });
 
   // Fetch real data from API
-  const fetchData = async () => {
+  const fetchData = async (isPolling = false) => {
     try {
-      setIsLoading(true);
-      setError(null);
+      if (!isPolling) setIsLoading(true);
+      // Don't clear error on polling to avoid flashing error states
+      if (!isPolling) setError(null);
 
       // Fetch alerts from API
       try {
@@ -80,8 +68,9 @@ export function useNIDSData() {
         const convertedAlerts = backendAlerts.map(convertAlert);
         setAlerts(convertedAlerts);
       } catch (alertError) {
-        console.warn('Failed to fetch alerts, using empty array:', alertError);
-        setAlerts([]);
+        if (!isPolling) console.warn('Failed to fetch alerts, using empty array:', alertError);
+        // Keep existing alerts on error during polling instead of clearing
+        if (!isPolling) setAlerts([]);
       }
 
       // Fetch detailed stats for metrics and traffic data
@@ -90,7 +79,7 @@ export function useNIDSData() {
         const systemStatus = statsResponse.system_status || {};
         const snifferStats = statsResponse.sniffer_stats || {};
         const performanceStats = statsResponse.performance_stats || {};
-        
+
         // Update system metrics with real data
         setMetrics({
           cpu: systemStatus.cpu_usage || 0,
@@ -105,12 +94,12 @@ export function useNIDSData() {
         const realTrafficData = Array.from({ length: 24 }, (_, i) => {
           const timestamp = new Date(currentTime);
           timestamp.setHours(timestamp.getHours() - (23 - i));
-          
+
           // Use real packet counts with some historical simulation
           const baseIncoming = snifferStats.packets_received || 0;
           const baseOutgoing = snifferStats.packets_processed || 0;
           const baseThreats = statsResponse.alert_stats?.total_alerts || 0;
-          
+
           return {
             timestamp: timestamp.toISOString(),
             incoming: Math.max(0, baseIncoming + Math.floor(Math.random() * 200) - 100),
@@ -118,12 +107,12 @@ export function useNIDSData() {
             threats: Math.max(0, Math.floor(baseThreats * Math.random() * 0.1)),
           };
         });
-        
+
         setTrafficData(realTrafficData);
-        
+
       } catch (statsError) {
-        console.warn('Failed to fetch stats, falling back to system status:', statsError);
-        
+        if (!isPolling) console.warn('Failed to fetch stats, falling back to system status:', statsError);
+
         // Fallback to system status endpoint
         try {
           const statusResponse = await fetchSystemStatus();
@@ -135,34 +124,38 @@ export function useNIDSData() {
             networkOut: 0,
           });
         } catch (statusError) {
-          console.warn('Failed to fetch system status, using defaults:', statusError);
-          setMetrics({
-            cpu: 0,
-            memory: 0,
-            disk: 0,
-            networkIn: 0,
-            networkOut: 0,
-          });
+          if (!isPolling) console.warn('Failed to fetch system status, using defaults:', statusError);
+          // Only reset metrics on initial load failure
+          if (!isPolling) {
+            setMetrics({
+              cpu: 0,
+              memory: 0,
+              disk: 0,
+              networkIn: 0,
+              networkOut: 0,
+            });
+          }
         }
-        
-        // Use mock data as final fallback
-        setTrafficData(generateMockTrafficData());
+
+
       }
 
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to fetch data from NIDS API. Make sure the backend is running.');
-      
-      // Fallback to empty data
-      setAlerts([]);
-      setMetrics({
-        cpu: 0,
-        memory: 0,
-        disk: 0,
-        networkIn: 0,
-        networkOut: 0,
-      });
-      setTrafficData([]);
+      if (!isPolling) setError('Failed to fetch data from NIDS API. Make sure the backend is running.');
+
+      // Fallback to empty data only on initial load
+      if (!isPolling) {
+        setAlerts([]);
+        setMetrics({
+          cpu: 0,
+          memory: 0,
+          disk: 0,
+          networkIn: 0,
+          networkOut: 0,
+        });
+        setTrafficData([]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -170,10 +163,10 @@ export function useNIDSData() {
 
   useEffect(() => {
     fetchData();
-    
+
     // Set up polling for real-time updates
     const interval = setInterval(() => {
-      fetchData();
+      fetchData(true);
     }, 10000); // Poll every 10 seconds
 
     return () => clearInterval(interval);

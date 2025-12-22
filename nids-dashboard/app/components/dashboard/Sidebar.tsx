@@ -1,19 +1,22 @@
+'use client';
+
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Shield, Activity, Network, Settings, AlertTriangle } from 'lucide-react';
 
 const navItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Threat Detection', href: '/threats', icon: Shield },
-  { name: 'Network Traffic', href: '/traffic', icon: Network },
-  { name: 'System Health', href: '/health', icon: Activity },
-  { name: 'Alerts', href: '/alerts', icon: AlertTriangle },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: '/?tab=overview', value: 'overview', icon: LayoutDashboard },
+  { name: 'Threat Detection', href: '/?tab=detection', value: 'detection', icon: Shield },
+  { name: 'Network Traffic', href: '/?tab=traffic', value: 'traffic', icon: Network },
+  { name: 'System Health', href: '/?tab=system', value: 'system', icon: Activity },
+  { name: 'Alerts', href: '/?tab=alerts', value: 'alerts', icon: AlertTriangle },
+  { name: 'Settings', href: '/?tab=settings', value: 'settings', icon: Settings },
 ];
 
 export function Sidebar() {
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'overview';
 
   return (
     <aside className="hidden w-64 border-r bg-background md:block">
@@ -22,7 +25,7 @@ export function Sidebar() {
       </div>
       <nav className="space-y-1 p-4">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = currentTab === item.value;
           return (
             <Link
               key={item.href}
