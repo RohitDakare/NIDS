@@ -77,7 +77,7 @@ class MLDetector:
         """Get the list of feature columns for model training."""
         return [
             'packet_length', 'payload_size', 'source_port', 'dest_port',
-            'protocol_tcp', 'protocol_udp', 'protocol_icmp', 'protocol_other',
+            'protocol', 'protocol_tcp', 'protocol_udp', 'protocol_icmp', 'protocol_other',
             'has_tcp_flags', 'tcp_syn', 'tcp_ack', 'tcp_fin', 'tcp_rst',
             'tcp_psh', 'tcp_urg', 'hour_of_day', 'day_of_week',
             'flow_duration', 'flow_bytes_sent', 'flow_bytes_received',
@@ -359,13 +359,13 @@ class MLDetector:
                 check_is_fitted(detector.pipeline)
             except Exception:
                 logger.warning("Loaded pipeline is not fitted. Recreating and fitting pipeline with dummy data to enable predictions.")
-                # Recreate the preprocessing pipeline to ensure compatibility
+                # Create dummy data with all required columns
                 detector._init_preprocessing_pipeline()
-                # Create dummy data to fit the pipeline with proper column structure
+                all_cols = detector.numerical_columns + detector.categorical_columns
                 dummy_data = []
                 for _ in range(10):
                     row = {}
-                    for col in detector.feature_columns:
+                    for col in all_cols:
                         if col == 'protocol':
                             row[col] = np.random.choice(['tcp', 'udp', 'icmp', 'other'])
                         elif col in ['hour_of_day', 'day_of_week']:
