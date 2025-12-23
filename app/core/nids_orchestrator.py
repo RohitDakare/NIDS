@@ -11,6 +11,7 @@ from app.core.ml_detector import MLDetector
 from app.core.signature_detector import SignatureDetector
 from app.core.alert_manager import AlertManager
 from app.db.secure_mongodb import secure_mongo
+from app.blockchain.client import BlockchainClient
 from app.models.schemas import (
     PacketInfo, SnifferConfig, MLModelConfig, 
     SystemStatus, DetectionType, Alert
@@ -40,7 +41,15 @@ class NIDSOrchestrator:
                 secure_mongo.create_indexes()
         except Exception:
             logger.warning("Proceeding without MongoDB persistence")
-        self.alert_manager = AlertManager(alert_callback=alert_callback, db_manager=secure_mongo)
+        
+        # Initialize Blockchain Client
+        self.blockchain_client = BlockchainClient()
+        
+        self.alert_manager = AlertManager(
+            alert_callback=alert_callback, 
+            db_manager=secure_mongo,
+            blockchain_client=self.blockchain_client
+        )
         
         # System state
         self.is_running = False
@@ -203,6 +212,16 @@ class NIDSOrchestrator:
                 if hybrid_alert:
                     alerts_created += 1
             
+            # Automated Incident Response for Critical Alerts
+            if self.blockchain_client:
+                for sig_detection in signature_detections:
+                    if sig_detection.get('severity') == 'critical':
+                        ip_address = packet.source_ip
+                        reason = sig_detection.get('description', 'Critical threat detected')
+                        tx_hash = self.blockchain_client.trigger_incident_response(ip_address, reason)
+                        if tx_hash:
+                            logger.info(f"Automated incident response triggered for {ip_address} on blockchain: {tx_hash}")
+
             self.alerts_generated += alerts_created
             
         except Exception as e:

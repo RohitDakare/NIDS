@@ -9,7 +9,7 @@ import { useNIDSData } from '@/lib/hooks/useNIDSData';
 
 export function Header() {
   const { alerts } = useNIDSData();
-  const criticalAlerts = alerts.filter(alert => 
+  const criticalAlerts = alerts.filter(alert =>
     alert.severity === 'critical' || alert.severity === 'high'
   ).length;
 
@@ -34,9 +34,9 @@ export function Header() {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="relative hover:bg-accent/50 transition-colors"
           onClick={() => {
             // TODO: Implement notifications panel
@@ -45,8 +45,8 @@ export function Header() {
         >
           <Bell className="h-5 w-5" />
           {criticalAlerts > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center"
             >
               {criticalAlerts}

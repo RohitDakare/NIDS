@@ -31,70 +31,70 @@ def run_command(command, description):
 def run_unit_tests():
     """Run unit tests"""
     return run_command(
-        "python -m pytest tests/unit/ -v --tb=short",
+        f'"{sys.executable}" -m pytest tests/unit/ -v --tb=short',
         "Running Unit Tests"
     )
 
 def run_integration_tests():
     """Run integration tests"""
     return run_command(
-        "python -m pytest tests/integration/ -v --tb=short",
+        f'"{sys.executable}" -m pytest tests/integration/ -v --tb=short',
         "Running Integration Tests"
     )
 
 def run_e2e_tests():
     """Run end-to-end tests"""
     return run_command(
-        "python -m pytest tests/e2e/ -v --tb=short",
+        f'"{sys.executable}" -m pytest tests/e2e/ -v --tb=short',
         "Running End-to-End Tests"
     )
 
 def run_all_tests():
     """Run all tests"""
     return run_command(
-        "python -m pytest tests/ -v --tb=short",
+        f'"{sys.executable}" -m pytest tests/ -v --tb=short',
         "Running All Tests"
     )
 
 def run_tests_with_coverage():
     """Run tests with coverage report"""
     return run_command(
-        "python -m pytest tests/ --cov=app --cov-report=html --cov-report=term-missing -v",
+        f'"{sys.executable}" -m pytest tests/ --cov=app --cov-report=html --cov-report=term-missing -v',
         "Running Tests with Coverage"
     )
 
 def run_specific_test(test_path):
     """Run a specific test file or test function"""
     return run_command(
-        f"python -m pytest {test_path} -v --tb=short",
+        f'"{sys.executable}" -m pytest {test_path} -v --tb=short',
         f"Running Specific Test: {test_path}"
     )
 
 def run_performance_tests():
     """Run performance tests"""
     return run_command(
-        "python -m pytest tests/ -m slow -v --tb=short",
+        f'"{sys.executable}" -m pytest tests/ -m slow -v --tb=short',
         "Running Performance Tests"
     )
 
 def lint_code():
     """Run code linting"""
     return run_command(
-        "python -m flake8 app/ tests/ --max-line-length=100 --ignore=E203,W503",
+        f'"{sys.executable}" -m flake8 app/ tests/ --max-line-length=100 --ignore=E203,W503',
         "Running Code Linting"
     )
 
 def format_code():
     """Format code"""
     return run_command(
-        "python -m black app/ tests/ --line-length=100",
+        f'"{sys.executable}" -m black app/ tests/ --line-length=100',
         "Formatting Code"
     )
 
 def check_imports():
     """Check for unused imports"""
     return run_command(
-        "python -m autoflake --check --recursive app/ tests/",
+        f'"{sys.executable}" -m autoflake --check --recursive app/ tests/',
         "Checking for Unused Imports"
     )
 

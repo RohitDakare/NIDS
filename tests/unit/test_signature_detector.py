@@ -45,16 +45,14 @@ class TestSignatureDetector:
     def test_detect_with_custom_rules(self, signature_detector):
         """Test detection with custom rules"""
         # Add a custom rule
-        custom_rule = {
-            'rule_id': 'test_rule_1',
-            'name': 'Test Rule',
-            'description': 'Test rule for unit testing',
-            'pattern': 'tcp port 22',
-            'severity': AlertSeverity.HIGH,
-            'enabled': True,
-            'matches_count': 0,
-            'last_match': None
-        }
+        custom_rule = SignatureRule(
+            rule_id='test_rule_1',
+            name='Test Rule',
+            description='Test rule for unit testing',
+            pattern='22',
+            severity=AlertSeverity.HIGH,
+            enabled=True
+        )
         
         signature_detector.rules['test_rule_1'] = custom_rule
         
@@ -107,16 +105,15 @@ class TestSignatureDetector:
         """Test getting rule statistics"""
         stats = signature_detector.get_rule_stats()
         
-        assert isinstance(stats, list)
-        assert len(stats) > 0
-        
-        # Check structure of first rule
-        first_rule = stats[0]
-        assert 'rule_id' in first_rule
-        assert 'name' in first_rule
-        assert 'enabled' in first_rule
-        assert 'severity' in first_rule
-        assert 'matches_count' in first_rule
+        # Check structure of first rule in top_rules
+        assert 'top_rules' in stats
+        if stats['top_rules']:
+            first_rule = stats['top_rules'][0]
+            assert 'id' in first_rule
+            assert 'name' in first_rule
+            assert 'enabled' in first_rule
+            assert 'severity' in first_rule
+            assert 'matches' in first_rule
     
     def test_get_stats(self, signature_detector):
         """Test getting detector statistics"""
@@ -130,12 +127,13 @@ class TestSignatureDetector:
         
         assert isinstance(stats['total_rules'], int)
         assert stats['total_rules'] >= 0
-        assert stats['enabled_rules'] <= stats['total_rules']
-        assert stats['disabled_rules'] == stats['total_rules'] - stats['enabled_rules']
+        assert isinstance(stats['enabled_rules'], list)
+        assert len(stats['enabled_rules']) <= stats['total_rules']
+        assert stats['disabled_rules'] == stats['total_rules'] - stats['enabled_rules_count']
         assert isinstance(stats['matches_count'], int)
         assert stats['matches_count'] >= 0
         assert isinstance(stats['top_rules'], list)
-        assert stats['enabled_rules'] >= 0
+        assert stats['enabled_rules_count'] >= 0
         assert stats['matches_count'] >= 0
     
     def test_rule_matching_logic(self, signature_detector):
@@ -182,26 +180,22 @@ class TestSignatureDetector:
         """Test multiple rules matching the same packet"""
         # Add multiple rules
         rules = {
-            'rule_1': {
-                'rule_id': 'rule_1',
-                'name': 'TCP Rule',
-                'description': 'Matches TCP traffic',
-                'pattern': 'tcp',
-                'severity': AlertSeverity.LOW,
-                'enabled': True,
-                'matches_count': 0,
-                'last_match': None
-            },
-            'rule_2': {
-                'rule_id': 'rule_2',
-                'name': 'Port 80 Rule',
-                'description': 'Matches port 80',
-                'pattern': 'tcp port 80',
-                'severity': AlertSeverity.MEDIUM,
-                'enabled': True,
-                'matches_count': 0,
-                'last_match': None
-            }
+            'rule_1': SignatureRule(
+                rule_id='rule_1',
+                name='TCP Rule',
+                description='Matches TCP traffic',
+                pattern='TCP',
+                severity=AlertSeverity.LOW,
+                enabled=True
+            ),
+            'rule_2': SignatureRule(
+                rule_id='rule_2',
+                name='Port 80 Rule',
+                description='Matches port 80',
+                pattern='80',
+                severity=AlertSeverity.MEDIUM,
+                enabled=True
+            )
         }
         
         for rule_id, rule in rules.items():
@@ -262,16 +256,14 @@ class TestSignatureDetector:
         
         for i, severity in enumerate(severities):
             rule_id = f'severity_rule_{i}'
-            rule = {
-                'rule_id': rule_id,
-                'name': f'Severity {severity} Rule',
-                'description': f'Rule with {severity} severity',
-                'pattern': 'tcp',
-                'severity': severity,
-                'enabled': True,
-                'matches_count': 0,
-                'last_match': None
-            }
+            rule = SignatureRule(
+                rule_id=rule_id,
+                name=f'Severity {severity} Rule',
+                description=f'Rule with {severity} severity',
+                pattern='TCP',
+                severity=severity,
+                enabled=True
+            )
             
             signature_detector.rules[rule_id] = rule
         

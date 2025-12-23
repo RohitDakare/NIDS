@@ -38,20 +38,21 @@ def main():
         dashboard_main()
         return
     
-    # Configure training
-    config = {
+    # Create and run pipeline with merged config
+    pipeline = NIDSTrainingPipeline()
+    # Merge CLI config into default config
+    pipeline.config.update({
         "data_path": args.data,
-        "models": {}
-    }
+        "use_synthetic": args.synthetic
+    })
     
-    # Enable selected models
-    all_models = ["random_forest", "gradient_boosting", "isolation_forest", "one_class_svm"]
-    for model in all_models:
-        config["models"][model] = {"enabled": model in args.models}
+    # Update model activation
+    for model_name in pipeline.config["models"]:
+        pipeline.config["models"][model_name]["enabled"] = model_name in args.models
     
     if args.quick:
         print("🚀 Quick training mode - using optimized settings")
-        config.update({
+        pipeline.config.update({
             "test_size": 0.3,
             "cv_folds": 3,
             "use_smote": True,
@@ -61,14 +62,11 @@ def main():
     
     if args.synthetic:
         print("🔬 Using synthetic data for training")
-        config["data_path"] = "synthetic"
-    
-    # Create and run pipeline
-    pipeline = NIDSTrainingPipeline(config)
+        pipeline.config["data_path"] = "synthetic"
     
     print("🤖 Starting NIDS ML model training...")
     print(f"📊 Training models: {', '.join(args.models)}")
-    print(f"📁 Data path: {config['data_path']}")
+    print(f"📁 Data path: {pipeline.config['data_path']}")
     
     success = pipeline.run_pipeline()
     

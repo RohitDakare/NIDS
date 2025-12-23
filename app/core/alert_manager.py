@@ -8,16 +8,19 @@ import logging
 import json
 
 from app.models.schemas import Alert, PacketInfo, AlertSeverity, DetectionType
+from app.blockchain.client import BlockchainClient
 
 logger = logging.getLogger(__name__)
 
 class AlertManager:
     """Manages alerts from ML and signature-based detections"""
     
-    def __init__(self, max_alerts: int = 10000, alert_callback: Optional[Callable] = None, db_manager: Optional[Any] = None):
+    def __init__(self, max_alerts: int = 10000, alert_callback: Optional[Callable] = None, 
+                 db_manager: Optional[Any] = None, blockchain_client: Optional[BlockchainClient] = None):
         self.max_alerts = max_alerts
         self.alert_callback = alert_callback
         self.db_manager = db_manager
+        self.blockchain_client = blockchain_client
         self.alerts: deque = deque(maxlen=max_alerts)
         self.alert_id_counter = 0
         self.alerts_by_severity = {
@@ -127,6 +130,23 @@ class AlertManager:
                 except Exception as e:
                     logger.error(f"Error in alert callback: {e}")
             
+            # Blockchain Logging for Critical Alerts
+            if self.blockchain_client and severity == 'critical':
+                try:
+                    alert_data = {
+                        'timestamp': alert.timestamp.isoformat(),
+                        'description': alert.description,
+                        'source_ip': alert.source_ip,
+                        'dest_ip': alert.dest_ip,
+                        'protocol': alert.protocol,
+                        'confidence_score': alert.confidence_score
+                    }
+                    tx_hash = self.blockchain_client.record_alert(alert.id, alert_data)
+                    if tx_hash:
+                        logger.info(f"Alert {alert.id} recorded on blockchain: {tx_hash}")
+                except Exception as e:
+                    logger.error(f"Failed to record alert on blockchain: {e}")
+
             logger.info(f"Created alert {alert_id}: {description} (Severity: {severity})")
             return alert
             
