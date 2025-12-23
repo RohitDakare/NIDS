@@ -15,6 +15,7 @@ from app.core.nids_orchestrator import NIDSOrchestrator
 from app.utils.config import settings
 from app.utils.security import SecurityMiddleware, security_manager
 from app.models.schemas import SnifferConfig, MLModelConfig
+from app.utils.integrity_manager import IntegrityManager
 
 # Configure logging
 logging.basicConfig(
@@ -68,6 +69,15 @@ async def lifespan(app: FastAPI):
         from app.api import routes
         routes.nids_orchestrator = nids_orchestrator
         
+        # Performance Model Integrity Check
+        logger.info("Performing blockchain-based integrity check...")
+        integrity_manager = IntegrityManager(nids_orchestrator.blockchain_client)
+        if not integrity_manager.verify_all():
+            logger.warning("INTEGRITY CHECK FAILED: Some models or rules may have been tampered with!")
+            # In a strict environment, we might raise an exception here
+        else:
+            logger.info("Integrity check passed successfully")
+
         logger.info("NIDS system initialized successfully")
         
     except Exception as e:
@@ -128,27 +138,39 @@ def _split_env_list(value: str, default: list[str]) -> list[str]:
         return default
     return [item.strip() for item in value.split(',') if item.strip()]
 
-# Trusted hosts from env (CSV). Default to localhost only in production-safe way
-trusted_hosts_env = os.getenv("TRUSTED_HOSTS", "localhost,127.0.0.1,192.168.137.1")
-trusted_hosts = _split_env_list(trusted_hosts_env, ["localhost", "127.0.0.1", "192.168.137.1"])
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
+# Trusted hosts from env (CSV). Default to allow all in development if not specified
+# trusted_hosts_env = os.getenv("TRUSTED_HOSTS", "*")
+# trusted_hosts = _split_env_list(trusted_hosts_env, ["*"])
+# app.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
 
 # CORS allowed origins from env (CSV). Defaults include local dev hosts
-cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://192.168.137.1:3000")
-cors_origins = _split_env_list(cors_origins_env, ["http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.137.1:3000"])
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+cors_origins_env = os.getenv("CORS_ORIGINS", "*")
+cors_origins = _split_env_list(cors_origins_env, ["*"])
 
 # Add rate limiting
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"Incoming request: {request.method} {request.url}")
+    try:
+        response = await call_next(request)
+        logger.info(f"Response status: {response.status_code}")
+        return response
+    except Exception as e:
+        logger.error(f"Request error: {e}")
+        raise
+
+# CORSMiddleware should be the outermost for OPTIONS to work correctly
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include API routes
 app.include_router(router, prefix="/api/v1", tags=["NIDS API"])

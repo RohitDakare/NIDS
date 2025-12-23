@@ -15,32 +15,40 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
 import re
 
+# Security logger
+security_logger = logging.getLogger("nids.security")
+
+def get_secret(secret_name: str, default: Optional[str] = None) -> Optional[str]:
+    """
+    Retrieves a secret from a secure location (e.g., HashiCorp Vault, AWS Secrets Manager).
+    This is a placeholder and should be implemented with a proper secrets management tool.
+    """
+    secret_value = os.getenv(secret_name, default)
+    if not secret_value and not default:
+        security_logger.warning(f"Secret '{secret_name}' not found. For production, configure a proper secrets manager.")
+    return secret_value
+
 # Configure password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Configure JWT
-JWT_SECRET = os.getenv("JWT_SECRET", "fallback-secret-key")
+JWT_SECRET = get_secret("JWT_SECRET", "fallback-secret-key")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
-
-# Security logger
-security_logger = logging.getLogger("nids.security")
 
 class SecurityManager:
     """Centralized security management"""
     
     def __init__(self):
-        self.api_key = os.getenv("API_KEY")
-        self.jwt_secret = os.getenv("JWT_SECRET", JWT_SECRET)
+        self.api_key = get_secret("API_KEY")
+        self.jwt_secret = get_secret("JWT_SECRET", JWT_SECRET)
         self.failed_attempts = {}  # IP -> count
         self.blocked_ips = set()
         
     def verify_api_key(self, provided_key: str) -> bool:
-        """Verify API key"""
-        if not self.api_key:
-            security_logger.warning("No API key configured - allowing access for testing")
-            return True  # Allow access when no API key is configured (for testing)
-        
+        """Verify API key using a constant-time comparison."""
+        if not self.api_key or not provided_key:
+            return False
         # Use constant-time comparison to prevent timing attacks
         return secrets.compare_digest(self.api_key, provided_key)
     
@@ -225,11 +233,14 @@ model_security = ModelSecurityManager()
 security = HTTPBearer()
 
 async def verify_api_key(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """FastAPI dependency for API key verification"""
-    # If no API key is configured, allow access for testing
+    """FastAPI dependency for API key verification. Enforces that an API key is configured."""
     if not security_manager.api_key:
-        return "no-auth-required"
-    
+        security_logger.error("CRITICAL: API_KEY is not configured on the server. Halting request.")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="API authentication is not configured on the server."
+        )
+
     if not credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

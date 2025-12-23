@@ -156,7 +156,8 @@ async def stop_sniffer(
 
 @router.get("/status", response_model=SystemStatus)
 async def get_status(
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get current system status"""
     try:
@@ -216,7 +217,8 @@ async def get_alerts(
 @router.get("/alerts/{alert_id}", response_model=Alert)
 async def get_alert_by_id(
     alert_id: str,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get a specific alert by ID"""
     try:
@@ -236,7 +238,8 @@ async def get_alert_by_id(
 async def resolve_alert(
     alert_id: str,
     resolution_notes: str = "",
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Resolve an alert"""
     try:
@@ -258,7 +261,8 @@ async def resolve_alert(
 @router.delete("/alerts/{alert_id}", response_model=Dict[str, Any])
 async def delete_alert(
     alert_id: str,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Delete an alert"""
     try:
@@ -280,7 +284,8 @@ async def delete_alert(
 @router.get("/packets", response_model=PacketResponse)
 async def get_packets(
     limit: int = Query(100, ge=1, le=1000, description="Number of packets to return"),
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get recent captured packets"""
     try:
@@ -299,7 +304,8 @@ async def get_packets(
 
 @router.get("/stats", response_model=Dict[str, Any])
 async def get_stats(
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get detailed system statistics"""
     try:
@@ -312,7 +318,8 @@ async def get_stats(
 
 @router.get("/correlation", response_model=Dict[str, Any])
 async def get_correlation_analysis(
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get alert correlation analysis"""
     try:
@@ -325,7 +332,8 @@ async def get_correlation_analysis(
 
 @router.get("/signature-rules", response_model=List[Dict[str, Any]])
 async def get_signature_rules(
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Get signature rules list"""
     try:
@@ -352,7 +360,8 @@ async def get_signature_rules(
 @router.post("/signature-rules/{rule_id}/enable", response_model=Dict[str, Any])
 async def enable_signature_rule(
     rule_id: str,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Enable a signature rule"""
     try:
@@ -374,7 +383,8 @@ async def enable_signature_rule(
 @router.post("/signature-rules/{rule_id}/disable", response_model=Dict[str, Any])
 async def disable_signature_rule(
     rule_id: str,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Disable a signature rule"""
     try:
@@ -396,7 +406,8 @@ async def disable_signature_rule(
 @router.post("/config/sniffer", response_model=Dict[str, Any])
 async def update_sniffer_config(
     config: SnifferConfig,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Update sniffer configuration"""
     try:
@@ -417,7 +428,8 @@ async def update_sniffer_config(
 @router.post("/config/ml", response_model=Dict[str, Any])
 async def update_ml_config(
     config: MLModelConfig,
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Update ML model configuration"""
     try:
@@ -438,7 +450,8 @@ async def update_ml_config(
 @router.post("/alerts/clear", response_model=Dict[str, Any])
 async def clear_alerts(
     older_than_days: Optional[int] = Query(None, description="Clear alerts older than specified days"),
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Clear alerts"""
     try:
@@ -460,7 +473,8 @@ async def clear_alerts(
 @router.get("/export/alerts", response_model=Dict[str, Any])
 async def export_alerts(
     format: str = Query("json", description="Export format (json or csv)"),
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Export alerts"""
     try:
@@ -484,7 +498,8 @@ async def export_alerts(
 
 @router.get("/health", response_model=Dict[str, Any])
 async def health_check(
-    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator)
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
 ):
     """Health check endpoint with detailed diagnostics"""
     try:
