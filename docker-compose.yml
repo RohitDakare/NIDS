@@ -13,7 +13,7 @@ services:
       - mongo_data:/data/db
 
   backend:
-    build: .
+    build: ./backend
     depends_on:
       - mongo
     environment:
@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./nids-dashboard
+    build: ./frontend
     depends_on:
       - backend
     environment:

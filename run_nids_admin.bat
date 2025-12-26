@@ -16,6 +16,9 @@ pause
 echo Starting NIDS with real packet capture...
 echo.
 
+REM Change to backend directory
+cd backend
+
 REM Activate virtual environment
 call venv_new\Scripts\activate.bat
 
