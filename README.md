@@ -161,7 +161,7 @@ pip install -r config/requirements-windows.txt
 #### 3. Frontend Setup
 
 ```bash
-cd nids-dashboard
+cd frontend
 npm install
 cd ..
 ```
@@ -227,25 +227,37 @@ LOG_LEVEL=INFO
 
 ## 🏃 Running the Application
 
-### Development Mode
+### 1. Start Backend (Real Packet Analysis)
 
-#### Start Backend (Terminal 1)
-```bash
-# Activate virtual environment
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate     # Windows
+To analyze real network traffic, you must run the backend with administrator privileges.
 
-# Start FastAPI server
-python -m app.main
+**Windows (Recommended):**
+1. Right-click `run_nids_admin.bat` in the root directory.
+2. Select "Run as administrator".
+3. This script will automatically:
+   - Navigate to the `backend` directory
+   - Activate the virtual environment
+   - Start the NIDS engine with packet capturing enabled
 
-# Or using uvicorn directly
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+**Manual Method (Windows):**
+```powershell
+# Open PowerShell as Administrator
+cd backend
+venv_new\Scripts\activate
+python main_working.py
 ```
 
-#### Start Frontend (Terminal 2)
+**Linux/Mac:**
 ```bash
-cd nids-dashboard
+sudo ./start_nids.sh
+```
+
+### 2. Start Frontend Dashboard
+
+Open a new terminal (admin privileges not required) and run:
+
+```bash
+cd frontend
 npm run dev
 ```
 
@@ -253,13 +265,22 @@ npm run dev
 
 #### Backend
 ```bash
-# Using the startup script
-./start_nids.sh  # Linux/Mac
-# or
-start_nids.bat   # Windows
+# Windows
+start_nids.bat
 
-# Or directly
+# Linux/Mac
+./start_nids.sh
+
+# Manual
+cd backend
 python -m app.main
+```
+
+#### Frontend
+```bash
+cd frontend
+npm run build
+npm start
 ```
 
 #### Frontend

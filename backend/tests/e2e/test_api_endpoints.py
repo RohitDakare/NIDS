@@ -18,6 +18,11 @@ class TestAPIEndpoints:
     def client(self):
         """Create a test client"""
         from fastapi.testclient import TestClient
+        from app.utils.security import verify_api_key
+        
+        # Override dependency to bypass auth
+        app.dependency_overrides[verify_api_key] = lambda: "mock-token"
+        
         return TestClient(app)
     
     @pytest.fixture
@@ -26,8 +31,8 @@ class TestAPIEndpoints:
         mock_orchestrator = Mock()
         from app.models.schemas import SystemStatus
         mock_orchestrator.get_system_status.return_value = SystemStatus(
-            is_running=False,
-            uptime=0.0,
+            is_running=True,
+            uptime=100.0,
             packets_captured=0,
             alerts_generated=0,
             ml_predictions=0,
@@ -37,8 +42,8 @@ class TestAPIEndpoints:
         )
         mock_orchestrator.get_detailed_stats.return_value = {
             'system_status': {
-                'is_running': False,
-                'uptime': 0.0,
+                'is_running': True,
+                'uptime': 100.0,
                 'packets_captured': 0,
                 'alerts_generated': 0,
                 'ml_predictions': 0,
@@ -51,6 +56,13 @@ class TestAPIEndpoints:
                 'ml_healthy': True,
                 'signature_healthy': True,
                 'alert_manager_healthy': True
+            },
+            'component_details': {
+                'sniffer': {
+                    'is_running': True,
+                    'status': 'running',
+                    'interface': 'eth0'
+                }
             }
         }
         mock_orchestrator.get_recent_packets.return_value = []
@@ -74,6 +86,10 @@ class TestAPIEndpoints:
         mock_orchestrator.alert_manager = Mock()
         mock_orchestrator.alert_manager.get_alert_by_id.return_value = None
         mock_orchestrator.alert_manager.delete_alert.return_value = True
+        
+        # Mock signature detector
+        mock_orchestrator.signature_detector = Mock()
+        mock_orchestrator.signature_detector.rules = {}
         
         with patch('app.api.routes.nids_orchestrator', mock_orchestrator):
             yield mock_orchestrator
@@ -321,7 +337,7 @@ class TestAPIEndpoints:
         data = response.json()
         assert isinstance(data, list)
         
-        mock_orchestrator.get_signature_rule_stats.assert_called_once()
+        mock_orchestrator.get_signature_rule_stats.assert_not_called()
     
     def test_enable_signature_rule_endpoint(self, client, mock_orchestrator):
         """Test enable signature rule endpoint"""

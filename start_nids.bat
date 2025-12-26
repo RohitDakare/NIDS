@@ -1,6 +1,6 @@
 @echo off
 echo Starting NIDS Application...
 cd backend
-call venv_new\Scripts\activate
+call venv_clean\Scripts\activate
 python -m app.main
 pause

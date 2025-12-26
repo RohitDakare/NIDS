@@ -13,14 +13,19 @@ echo - Active network interface
 echo.
 pause
 
-echo Starting NIDS with real packet capture...
+echo Starting NIDS Frontend...
+cd frontend
+start "NIDS Dashboard" cmd /k "npm run dev"
+cd ..
+
+echo Starting NIDS Backend with real packet capture...
 echo.
 
 REM Change to backend directory
 cd backend
 
 REM Activate virtual environment
-call venv_new\Scripts\activate.bat
+call venv_clean\Scripts\activate
 
 REM Run NIDS backend with admin privileges
 python main_working.py

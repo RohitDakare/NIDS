@@ -66,6 +66,7 @@ class TestNIDSOrchestrator:
                 'detection_rate': 0.0
             }
             mock_sig_instance.get_rule_stats.return_value = []
+            mock_sig_instance.rules = []
             mock_sig.return_value = mock_sig_instance
             
             mock_alert_instance = Mock()
@@ -283,23 +284,29 @@ class TestNIDSOrchestrator:
     
     def test_get_detailed_stats(self, orchestrator):
         """Test getting detailed statistics"""
-        stats = orchestrator.get_detailed_stats()
-        
-        assert 'system_status' in stats
-        assert 'sniffer_stats' in stats
-        assert 'ml_stats' in stats
-        assert 'signature_stats' in stats
-        assert 'alert_stats' in stats
-        assert 'performance_stats' in stats
-        assert 'detection_rates' in stats
-        assert 'component_health' in stats
-        
-        # Verify component health
-        component_health = stats['component_health']
-        assert 'sniffer_healthy' in component_health
-        assert 'ml_healthy' in component_health
-        assert 'signature_healthy' in component_health
-        assert 'alert_manager_healthy' in component_health
+        with patch('psutil.virtual_memory') as mock_memory, \
+             patch('psutil.cpu_percent') as mock_cpu:
+            
+            mock_memory.return_value.percent = 50.0
+            mock_cpu.return_value = 25.0
+            
+            stats = orchestrator.get_detailed_stats()
+            
+            assert 'system_status' in stats
+            assert 'sniffer_stats' in stats
+            assert 'ml_stats' in stats
+            assert 'signature_stats' in stats
+            assert 'alert_stats' in stats
+            assert 'performance_stats' in stats
+            assert 'detection_rates' in stats
+            assert 'component_health' in stats
+            
+            # Verify component health
+            component_health = stats['component_health']
+            assert 'sniffer_healthy' in component_health
+            assert 'ml_healthy' in component_health
+            assert 'signature_healthy' in component_health
+            assert 'alert_manager_healthy' in component_health
     
     def test_get_recent_packets(self, orchestrator):
         """Test getting recent packets"""

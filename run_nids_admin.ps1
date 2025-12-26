@@ -29,9 +29,11 @@ $winpcapPath = "C:\Windows\System32\wpcap.dll"
 
 if (Test-Path $npcapPath) {
     Write-Host "✅ Npcap found" -ForegroundColor Green
-} elseif (Test-Path $winpcapPath) {
+}
+elseif (Test-Path $winpcapPath) {
     Write-Host "✅ WinPcap found" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "⚠️  Npcap/WinPcap not found - packet capture may not work" -ForegroundColor Yellow
     Write-Host "💡 Install Npcap from: https://nmap.org/npcap/" -ForegroundColor Cyan
 }
@@ -40,7 +42,8 @@ Write-Host ""
 
 # Activate virtual environment
 Write-Host "🔧 Activating virtual environment..." -ForegroundColor Yellow
-& ".\venv_new\Scripts\Activate.ps1"
+Set-Location "backend"
+& ".\venv_clean\Scripts\Activate.ps1"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to activate virtual environment" -ForegroundColor Red
@@ -61,9 +64,11 @@ Write-Host ""
 
 try {
     python main_working.py
-} catch {
+}
+catch {
     Write-Host "❌ Error starting NIDS backend: $($_.Exception.Message)" -ForegroundColor Red
-} finally {
+}
+finally {
     Write-Host ""
     Write-Host "NIDS backend stopped." -ForegroundColor Yellow
     Read-Host "Press Enter to exit"

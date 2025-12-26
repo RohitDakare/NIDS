@@ -20,20 +20,46 @@ def send_syn_flood(target_ip, target_port, duration=5):
             pass
     print(f"[*] Sent {count} connection attempts.")
 
-def send_port_scan(target_ip, start_port=50, end_port=150):
-    """Simulate a Port Scan"""
-    print(f"[*] Starting Port Scan on {target_ip} from port {start_port} to {end_port}...")
-    for port in range(start_port, end_port):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(0.1)
-            s.connect_ex((target_ip, port))
-            s.close()
-            if port % 20 == 0:
-                time.sleep(0.01) # throttled slightly
-        except:
-            pass
-    print("[*] Port Scan completed.")
+def check_port(target_ip, port):
+    """Check a single port (helper for threads)"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1.0) # slightly longer timeout for reliability
+        result = s.connect_ex((target_ip, port))
+        s.close()
+        return port, result == 0
+    except:
+        return port, False
+
+def send_port_scan(target_ip, start_port=1, end_port=1024, max_threads=100):
+    """Simulate a Concurrent Port Scan"""
+    print(f"[*] Starting CONCURRENT Port Scan on {target_ip} from port {start_port} to {end_port}...")
+    print(f"[*] Using {max_threads} threads for rapid scanning.")
+    
+    open_ports = []
+    
+    from concurrent.futures import ThreadPoolExecutor
+    
+    ports = range(start_port, end_port + 1)
+    
+    with ThreadPoolExecutor(max_workers=max_threads) as executor:
+        # Launch checks
+        futures = [executor.submit(check_port, target_ip, port) for port in ports]
+        
+        # Wait for results
+        for i, future in enumerate(futures):
+            try:
+                port, is_open = future.result()
+                if is_open:
+                    print(f"  [!] Port {port} is OPEN")
+                    open_ports.append(port)
+                # print progress every 100 ports
+                if i % 100 == 0 and i > 0:
+                    print(f"  ... scanned {i} ports")
+            except Exception as e:
+                pass
+                
+    print(f"[*] Port Scan completed. Found {len(open_ports)} open ports: {open_ports}")
 
 def send_suspicious_payloads(target_ip, target_port=80):
     """Send packets with suspicious signatures"""
@@ -66,9 +92,12 @@ if __name__ == "__main__":
     
     print("--- STARTING ATTACK SIMULATION ---")
     
-    t1 = threading.Thread(target=send_port_scan, args=(target, 7000, 7100))
+    # Run concurrent port scan (now fast!)
+    # Scanning 1-9000 to cover commonly used ports including 3000(fe) and 8000(be)
+    t1 = threading.Thread(target=send_port_scan, args=(target, 1, 9000, 200))
     t1.start()
     
+    # Run SYN flood in parallel
     t2 = threading.Thread(target=send_syn_flood, args=(target, 8000, 5))
     t2.start()
     

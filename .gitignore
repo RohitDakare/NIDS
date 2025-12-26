@@ -1,0 +1,44 @@
+# System
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+venv_new/
+venv_temp/
+venv_clean/
+env/
+.env
+.venv
+
+# Logs
+logs/
+*.log
+
+# NIDS Specific
+backend/.env
+backend/SECURITY_CREDENTIALS.txt
+*.pcap
+*.pcapng
+test_output.txt
+training_results/
+
+# Editor
+.vscode/
+.idea/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Frontend (if not using nested gitignore)
+frontend/.next/
+frontend/node_modules/
