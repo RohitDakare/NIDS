@@ -63,5 +63,5 @@ The project has been successfully reorganized into a clean architecture:
 
 ```bash
 # In a new terminal (backend directory)
-python generate_attack_traffic.py
+python simulate_attacks.py
 ```

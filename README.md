@@ -106,7 +106,7 @@ To verify the system is working, you can generate simulated attack traffic.
 2.  Open a terminal in the `backend/` directory.
 3.  Run the generator:
     ```bash
-    python generate_attack_traffic.py
+    python simulate_attacks.py
     ```
 4.  Follow the prompts to simulate attacks (e.g., DDoS, Port Scan).
 5.  Check the **Dashboard** for alerts.

@@ -53,7 +53,7 @@ To verify that the NIDS is detecting threats, generation of simulated traffic is
 ```powershell
 cd "d:\Rohit imp file\Project\NIDS\backend"
 .\venv_clean\Scripts\activate
-python generate_attack_traffic.py
+python simulate_attacks.py
 ```
 
 4.  Select an attack type (e.g., `1` for DDoS).
