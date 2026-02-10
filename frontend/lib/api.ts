@@ -158,3 +158,30 @@ export async function updateMLConfig(config: any) {
   if (!res.ok) throw new Error("Failed to update ML config");
   return res.json();
 }
+
+// IPS Management
+export async function fetchBlockedIPs() {
+  const res = await fetch(`${API_BASE_URL}/ips/blocked`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch blocked IPs");
+  return res.json();
+}
+
+export async function blockIP(ipAddress: string, duration = 60, reason = "Manual block") {
+  const res = await fetch(`${API_BASE_URL}/ips/block?ip_address=${encodeURIComponent(ipAddress)}&duration=${duration}&reason=${encodeURIComponent(reason)}`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to block IP");
+  return res.json();
+}
+
+export async function unblockIP(ipAddress: string) {
+  const res = await fetch(`${API_BASE_URL}/ips/unblock?ip_address=${encodeURIComponent(ipAddress)}`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to unblock IP");
+  return res.json();
+}

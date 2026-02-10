@@ -550,4 +550,81 @@ async def health_check(
             "status": "unhealthy",
             "error": str(e),
             "timestamp": 0
-        } 
+        }
+
+@router.get("/ips/blocked", response_model=Dict[str, Any])
+async def get_blocked_ips(
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
+):
+    """Get list of blocked IPs"""
+    try:
+        blocked_ips = {}
+        with orchestrator.ips_manager.lock:
+            for ip, expiry in orchestrator.ips_manager.blocked_ips.items():
+                blocked_ips[ip] = expiry.isoformat() if expiry else "permanent"
+        
+        return {
+            "status": "success",
+            "count": len(blocked_ips),
+            "blocked_ips": blocked_ips
+        }
+    except Exception as e:
+        logger.error(f"Error getting blocked IPs: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get blocked IPs: {str(e)}")
+
+@router.post("/ips/block", response_model=Dict[str, Any])
+async def manual_block_ip(
+    ip_address: str = Query(..., description="IP address to block"),
+    duration: int = Query(60, description="Duration in minutes"),
+    reason: str = Query("Manual block", description="Reason for blocking"),
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
+):
+    """Manually block an IP address"""
+    try:
+        if not input_validator.validate_ip_address(ip_address):
+            raise HTTPException(status_code=400, detail="Invalid IP address")
+            
+        success = orchestrator.ips_manager.block_ip(ip_address, duration, reason)
+        
+        if success:
+            return {
+                "status": "success",
+                "message": f"IP {ip_address} blocked successfully for {duration} minutes"
+            }
+        else:
+            raise HTTPException(status_code=400, detail=f"Failed to block IP {ip_address} (possibly whitelisted or system error)")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error blocking IP: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to block IP: {str(e)}")
+
+@router.post("/ips/unblock", response_model=Dict[str, Any])
+async def manual_unblock_ip(
+    ip_address: str = Query(..., description="IP address to unblock"),
+    orchestrator: NIDSOrchestrator = Depends(get_nids_orchestrator),
+    token: str = Depends(verify_api_key)
+):
+    """Manually unblock an IP address"""
+    try:
+        if not input_validator.validate_ip_address(ip_address):
+            raise HTTPException(status_code=400, detail="Invalid IP address")
+            
+        success = orchestrator.ips_manager.unblock_ip(ip_address)
+        
+        if success:
+            return {
+                "status": "success",
+                "message": f"IP {ip_address} unblocked successfully"
+            }
+        else:
+            raise HTTPException(status_code=404, detail=f"IP {ip_address} was not blocked or failed to unblock")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error unblocking IP: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to unblock IP: {str(e)}") 

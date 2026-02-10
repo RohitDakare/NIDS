@@ -10,6 +10,7 @@ from app.core.packet_sniffer import PacketSniffer
 from app.core.ml_detector import MLDetector
 from app.core.signature_detector import SignatureDetector
 from app.core.alert_manager import AlertManager
+from app.core.ips_manager import IPSManager
 from app.db.secure_mongodb import secure_mongo
 from app.blockchain.client import BlockchainClient
 from app.models.schemas import (
@@ -35,6 +36,10 @@ class NIDSOrchestrator:
         self.packet_sniffer = PacketSniffer(sniffer_config)
         self.ml_detector = MLDetector(ml_config)
         self.signature_detector = SignatureDetector()
+        
+        # Initialize IPS Manager
+        self.ips_manager = IPSManager(auto_block=True)
+        
         # Ensure DB connection
         try:
             if secure_mongo.connect():
@@ -58,6 +63,7 @@ class NIDSOrchestrator:
         self.alerts_generated = 0
         self.ml_predictions = 0
         self.signature_matches = 0
+        self.last_cleanup_time = time.time()
         
         # Performance monitoring
         self.performance_stats = {
@@ -84,6 +90,7 @@ class NIDSOrchestrator:
             self.alerts_generated = 0
             self.ml_predictions = 0
             self.signature_matches = 0
+            self.last_cleanup_time = time.time()
             
             # Reset performance stats
             self.performance_stats = {
@@ -137,6 +144,16 @@ class NIDSOrchestrator:
             # Increment packet counter
             self.packets_processed += 1
             
+            # IPS Maintenance (every 60 seconds roughly)
+            if time.time() - self.last_cleanup_time > 60:
+                self.ips_manager.cleanup_expired_blocks()
+                self.last_cleanup_time = time.time()
+            
+            # Check if packet is from blocked IP (if we were blocking at ingress, the kernel would handle this, 
+            # but for this app-level IPS simulation we can skip processing)
+            if self.ips_manager.is_blocked(packet.source_ip):
+                return
+
             # ML-based detection
             ml_detection = self._perform_ml_detection(packet)
 
@@ -197,18 +214,26 @@ class NIDSOrchestrator:
         """Generate alerts based on detections"""
         try:
             alerts_created = 0
+            highest_severity = 'low'
             
             # Create ML alert if anomalous
             if ml_detection.get('is_anomalous', False):
                 ml_alert = self.alert_manager.create_ml_alert(ml_detection, packet)
                 if ml_alert:
                     alerts_created += 1
+                    highest_severity = ml_alert.severity
             
             # Create signature alerts
             for sig_detection in signature_detections:
                 sig_alert = self.alert_manager.create_signature_alert(sig_detection, packet)
                 if sig_alert:
                     alerts_created += 1
+                    # Update highest severity
+                    # Note: very naive comparison, should use AlertSeverity enum logic
+                    if sig_alert.severity == 'critical':
+                        highest_severity = 'critical'
+                    elif sig_alert.severity == 'high' and highest_severity != 'critical':
+                        highest_severity = 'high'
             
             # Create hybrid alert if both ML and signature detected something
             if (ml_detection.get('is_anomalous', False) and signature_detections):
@@ -220,16 +245,22 @@ class NIDSOrchestrator:
                 )
                 if hybrid_alert:
                     alerts_created += 1
+                    if hybrid_alert.severity == 'critical':
+                        highest_severity = 'critical'
             
-            # Automated Incident Response for Critical Alerts
-            if self.blockchain_client:
-                for sig_detection in signature_detections:
-                    if sig_detection.get('severity') == 'critical':
-                        ip_address = packet.source_ip
-                        reason = sig_detection.get('description', 'Critical threat detected')
-                        tx_hash = self.blockchain_client.trigger_incident_response(ip_address, reason)
-                        if tx_hash:
-                            logger.info(f"Automated incident response triggered for {ip_address} on blockchain: {tx_hash}")
+            # Automated Incident Response (IPS & Blockchain)
+            if highest_severity == 'critical':
+                ip_address = packet.source_ip
+                reason = "Critical threat detected by NIDS"
+                
+                # 1. Trigger IPS Block
+                self.ips_manager.block_ip(ip_address, duration_minutes=60, reason=reason)
+                
+                # 2. Blockchain Logging
+                if self.blockchain_client:
+                    tx_hash = self.blockchain_client.trigger_incident_response(ip_address, reason)
+                    if tx_hash:
+                        logger.info(f"Automated incident response triggered for {ip_address} on blockchain: {tx_hash}")
 
             self.alerts_generated += alerts_created
             

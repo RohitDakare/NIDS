@@ -1,0 +1,41 @@
+graph TB
+    %% === STYLES ===
+    classDef core fill:#1E90FF,stroke:#000,color:#000,stroke-width:2px,rx:10px,ry:10px;
+    classDef db fill:#9ACD32,stroke:#000,color:#000,stroke-width:2px,rx:10px,ry:10px;
+    classDef blockchain fill:#FFD700,stroke:#000,color:#000,stroke-width:2px,rx:10px,ry:10px;
+    classDef frontend fill:#FF69B4,stroke:#000,color:#000,stroke-width:2px,rx:10px,ry:10px;
+    classDef backend fill:#00CED1,stroke:#000,color:#000,stroke-width:2px,rx:10px,ry:10px;
+    classDef detection fill:#FF8C00,stroke:#000,color:#000,stroke-width:2px,rx:10px,ry:10px;
+
+    %% === NODES ===
+    User(("User<br/>(Web Interface)"))
+    Frontend["Frontend<br/>(React/Next.js)"]:::frontend
+    Backend["Backend<br/>(FastAPI)"]:::backend
+    DB[("Database<br/>(MongoDB)")]:::db
+    Blockchain["Blockchain<br/>(Ethereum Client)"]:::blockchain
+
+    subgraph "Detection Engine"
+        direction LR
+        PacketSniffer["Packet Sniffer"]:::detection
+        MLDetector["ML Detector"]:::detection
+        SignatureDetector["Signature Detector"]:::detection
+    end
+
+    AlertManager["Alert Manager"]:::detection
+
+    %% === RELATIONSHIPS ===
+    User -->|Interacts| Frontend
+    Frontend -->|API Calls| Backend
+
+    Backend -->|Manages| PacketSniffer
+    Backend -->|Manages| MLDetector
+    Backend -->|Manages| SignatureDetector
+
+    PacketSniffer -->|Network Traffic| MLDetector
+    PacketSniffer -->|Network Traffic| SignatureDetector
+
+    MLDetector -->|Anomalies| AlertManager
+    SignatureDetector -->|Signatures| AlertManager
+
+    AlertManager -->|Stores Alerts & Packets| DB
+    AlertManager -->|Logs Hashes| Blockchain
